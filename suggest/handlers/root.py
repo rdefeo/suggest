@@ -43,7 +43,7 @@ class Root(RequestHandler):
 
             _id_reasons = {}
             for entity in data["context"]["entities"]:
-                response = content.get_list(entity["type"], entity["key"])
+                response = content.get_reason_list(entity["type"], entity["key"])
 
                 for x in response:
                     reason = self.create_reason(entity["type"], entity["key"], x["score"])

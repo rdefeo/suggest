@@ -15,7 +15,7 @@ def get_product(_id):
     }
 
 @lru_cache(maxsize=128)
-def get_list(attribute_type, attribute_key):
+def get_reason_list(attribute_type, attribute_key):
     'Retrieve text of a Python Enhancement Proposal'
     url = "http://content.jemboo.com/suggest/%s/%s.json" % (attribute_type, attribute_key)
     http_client = HTTPClient()
