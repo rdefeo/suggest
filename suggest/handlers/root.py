@@ -54,9 +54,15 @@ class Root(RequestHandler):
 
             from operator import itemgetter
             sorted_suggestions = sorted(_id_reasons.values(), key=itemgetter("score"), reverse=True)
+            fill_suggestions = []
+            for x in sorted_suggestions[:10]:
+
+                x.update(content.get_product(x["_id"]))
+                fill_suggestions.append(x)
+
             self.set_status(200)
             self.finish({
-                "res": sorted_suggestions[:100]
+                "res": fill_suggestions
             })
 
         except Exception as e:
