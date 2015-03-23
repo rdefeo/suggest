@@ -8,10 +8,10 @@ __author__ = 'robdefeo'
 
 class Application(tornado.web.Application):
     def __init__(self):
-        # from detect.parse import Parse
+        from suggest.content import Content
         handlers = [
-            url(r"/", Root, name="root"),
-            url(r"/status", Status, name="status")
+            url(r"/", Root, dict(content=Content()), name="root"),
+            url(r"/status", Status, dict(content=Content()), name="status")
         ]
 
         settings = dict(
