@@ -5,6 +5,7 @@ from tornado.web import RequestHandler, asynchronous
 from tornado.escape import json_encode
 from operator import itemgetter
 
+
 class Root(RequestHandler):
     def initialize(self, content):
         self.content = content
@@ -39,10 +40,14 @@ class Root(RequestHandler):
                     )
                 )
 
+            page = data["page"] if "page" in data else 1
+            page_size = data["page_size"] if "page_size" in data else 10
+            suggestions = self.suggest(data["context"], page, page_size)
             self.set_status(200)
             self.finish(
                 {
-                    "res": self.suggest(data["context"])
+                    "suggestions": suggestions,
+                    "version": "0.0.1"
                 }
             )
 
@@ -57,11 +62,7 @@ class Root(RequestHandler):
                 )
             )
 
-# from suggest.content import Content
-# content = Content()
-
-
-    def suggest(self, context):
+    def suggest(self, context, page, page_size):
         _id_reasons = {}
         for entity in context["entities"]:
             response = self.content.get_reason_list(entity["type"], entity["key"])
@@ -84,11 +85,13 @@ class Root(RequestHandler):
         sorted_suggestions = sorted(_id_reasons.values(), key=itemgetter("score"), reverse=True)
         minimum = sorted_suggestions[-1]["score"]
         maximum = sorted_suggestions[0]["score"]
-        return list(self.fill(sorted_suggestions[:10], minimum, maximum))
-
+        start = (page-1) * page_size
+        end = page * page_size
+        return list(self.fill(sorted_suggestions[start:end], minimum, maximum))
 
     def fill(self, suggestions_to_fill, minimum, maximum):
         for x in suggestions_to_fill:
             y = self.content.get_product(x["_id"])
             y["s"] = (x["score"] - minimum) / (maximum - minimum)
+            y["_id"] = x["_id"]
             yield y

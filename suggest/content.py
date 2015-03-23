@@ -14,8 +14,7 @@ class Content(object):
         response = http_client.fetch(url)
         data = tornado.escape.json_decode(response.body)
         return {
-            "title": data["title"],
-            "_id": data["_id"]
+            "title": data["title"]
         }
 
     @lru_cache(maxsize=128)
