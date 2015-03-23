@@ -18,8 +18,7 @@ class Content(object):
         }
 
     @lru_cache(maxsize=128)
-    def get_reason_list(self, attribute_type, attribute_key):
-        url = "http://content.jemboo.com/suggest/%s/%s.json" % (attribute_type, attribute_key)
+    def get_reason_list(self, url):
         http_client = HTTPClient()
         response = http_client.fetch(url)
         return tornado.escape.json_decode(response.body)["results"]

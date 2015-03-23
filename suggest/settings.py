@@ -9,3 +9,4 @@ def get_env_setting(env_variable_name, default):
 import os
 
 PORT = int(get_env_setting("SUGGEST_PORT", 14999))
+CONTEXT_URL = get_env_setting("SUGGEST_CONTEXT_URL", "http://content.jemboo.com/suggest/")
