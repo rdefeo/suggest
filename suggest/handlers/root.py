@@ -83,23 +83,34 @@ class Root(RequestHandler):
                 }
             )
 
+    def get_content_list_response(self, _type, key):
+        if _type in ["popular", "added"]:
+            url = "%s/%s.json" % (CONTEXT_URL, _type)
+        else:
+            url = "%s%s/%s.json" % (CONTEXT_URL, _type, key)
+
+        return self.content.get_reason_list(url)
+
     def suggest(self, context, page, page_size):
         reasons = defaultdict(list)
         scores = defaultdict(int)
-        self.process_scores(
-            self.content.get_reason_list(
-                "%s/popular.json" % CONTEXT_URL
-            ),
-            "popular", "popular", "inferred", reasons, scores
-        )
-        entities_to_use = [x for x in context["entities"] if x["type"] in ["color", "theme", "style"]]
-        for entity in entities_to_use:
-            response = self.content.get_reason_list(
-                "%s%s/%s.json" % (CONTEXT_URL, entity["type"], entity["key"])
-            )
-            self.process_scores(response, entity["type"], entity["key"], "detection", reasons, scores)
 
-        sorted_scores = sorted(scores.items(), key=lambda x: x[1], reverse=True)
+        for entity in context["entities"]:
+            response = self.get_content_list_response(
+                entity["type"],
+                entity["key"]
+            )
+            self.process_scores(
+                response,
+                entity["type"],
+                entity["key"],
+                "detection",
+                reasons,
+                scores,
+                entity["weighting"]
+            )
+
+        sorted_scores = sorted(scores.items(), key=lambda y: y[1], reverse=True)
         minimum = sorted_scores[-1][1]
         maximum = sorted_scores[0][1]
         start = (page-1) * page_size
@@ -115,9 +126,9 @@ class Root(RequestHandler):
 
         return items_to_return
 
-    def process_scores(self, response, _type, key, source, reasons, scores):
+    def process_scores(self, response, _type, key, source, reasons, scores, weighting):
         for x in response:
-            scores[x["_id"]] += x["score"]
+            scores[x["_id"]] += x["score"] * weighting
 
     # def suggest(self, context, page, page_size):
     #     _id_reasons = {}
