@@ -1,11 +1,10 @@
-import tornado
 from tornado.log import app_log
-__author__ = 'robdefeo'
 from tornado.web import RequestHandler, asynchronous
-from tornado.escape import json_encode
+from tornado.escape import json_encode, url_unescape, json_decode
 from operator import itemgetter
 from suggest.settings import CONTEXT_URL
 from collections import defaultdict
+
 
 class Root(RequestHandler):
     def initialize(self, content):
@@ -15,60 +14,79 @@ class Root(RequestHandler):
         pass
 
     @asynchronous
-    def post(self, *args, **kwargs):
+    def get(self, *args, **kwargs):
         try:
-            data = tornado.escape.json_decode(self.request.body)
-
-            if "locale" not in data:
-                self.set_status(412)
-                self.finish(
-                    json_encode(
-                        {
-                            "status": "error",
-                            "message": "missing param=locale"
-                        }
-                    )
-                )
-
-            if "context" not in data:
-                self.set_status(412)
-                self.finish(
-                    json_encode(
-                        {
-                            "status": "error",
-                            "message": "missing param=context"
-                        }
-                    )
-                )
-
-            page = data["page"] if "page" in data else 1
-            page_size = data["page_size"] if "page_size" in data else 10
-            suggestions = self.suggest(data["context"], page, page_size)
-
             self.set_header('Content-Type', 'application/json')
-            self.set_status(200)
-            self.finish(
-                {
-                    "suggestions": suggestions,
-                    "version": "0.0.1"
-                }
-            )
+
+            locale = self.get_argument("locale", None)
+            raw_page = self.get_argument("page", None)
+            raw_page_size = self.get_argument("page_size", None)
+            raw_context = self.get_argument("context", None)
+
+            if raw_page is None:
+                self.set_status(412)
+                self.finish(
+                    {
+                        "status": "error",
+                        "message": "missing param=page"
+                    }
+                )
+
+            elif raw_page_size is None:
+                self.set_status(412)
+                self.finish(
+                    {
+                        "status": "error",
+                        "message": "missing param=page_size"
+                    }
+                )
+
+            elif locale is None:
+                self.set_status(412)
+                self.finish(
+                    {
+                        "status": "error",
+                        "message": "missing param=locale"
+                    }
+                )
+
+            elif raw_context is None:
+                self.set_status(412)
+                self.finish(
+                    {
+                        "status": "error",
+                        "message": "missing param=context"
+                    }
+                )
+            else:
+                page = int(raw_page)
+                page_size = int(raw_page_size)
+                context = json_decode(url_unescape(raw_context))
+                suggestions = self.suggest(context, page, page_size)
+
+                self.set_status(200)
+                self.finish(
+                    {
+                        "suggestions": suggestions,
+                        "version": "0.0.1"
+                    }
+                )
+
+                # TODO Log stuff here
 
         except Exception as e:
             app_log.error("error=%s" % e)
             self.set_status(500)
             self.finish(
-                json_encode(
-                    {
-                        "status": "error"
-                    }
-                )
+                {
+                    "status": "error"
+                }
             )
 
     def suggest(self, context, page, page_size):
         reasons = defaultdict(list)
         scores = defaultdict(int)
-        self.process_response(
+        self.process_scores(
             self.content.get_reason_list(
                 "%s/popular.json" % CONTEXT_URL
             ),
@@ -79,7 +97,7 @@ class Root(RequestHandler):
             response = self.content.get_reason_list(
                 "%s%s/%s.json" % (CONTEXT_URL, entity["type"], entity["key"])
             )
-            self.process_response(response, entity["type"], entity["key"], "detection", reasons, scores)
+            self.process_scores(response, entity["type"], entity["key"], "detection", reasons, scores)
 
         sorted_scores = sorted(scores.items(), key=lambda x: x[1], reverse=True)
         minimum = sorted_scores[-1][1]
@@ -88,23 +106,17 @@ class Root(RequestHandler):
         end = page * page_size
         items_to_return = []
         for x in sorted_scores[start:end]:
-            y = self.content.get_product(x[0])
-            y["_id"] = x[0]
-            y["s"] = (x[1] - minimum) / (maximum - minimum)
-            items_to_return.append(y)
+            items_to_return.append(
+                {
+                    "score": (x[1] - minimum) / (maximum - minimum),
+                    "_id": x[0]
+                }
+            )
 
         return items_to_return
 
-    def process_response(self, response, _type, key, source, reasons, scores):
+    def process_scores(self, response, _type, key, source, reasons, scores):
         for x in response:
-            # reasons[x["_id"]].append(
-            #     {
-            #         "source": source,
-            #         "type": _type,
-            #         "key": key,
-            #         "score": x["score"]
-            #     }
-            # )
             scores[x["_id"]] += x["score"]
 
     # def suggest(self, context, page, page_size):
@@ -147,9 +159,7 @@ class Root(RequestHandler):
     #                 "_id": x["_id"]
     #             }
 
-    def fill(self, suggestions_to_fill, minimum, maximum):
-        for x in suggestions_to_fill:
-            y = self.content.get_product(x["_id"])
-            y["s"] = (x["score"] - minimum) / (maximum - minimum)
-            y["_id"] = x["_id"]
-            yield y
+    # def normalise_score(self, suggestions_to_fill, minimum, maximum):
+    #     for x in suggestions_to_fill:
+    #         x["score"] = (x["score"] - minimum) / (maximum - minimum)
+    #         yield x
