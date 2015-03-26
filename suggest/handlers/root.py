@@ -67,16 +67,17 @@ class Root(RequestHandler):
             self.set_status(200)
             self.finish(suggestion_response)
 
-            # write log
-            from suggest.data.suggestion import Suggestion
-            suggestion_data = Suggestion()
-            suggestion_data.open_connection()
-            suggestion_data.insert(
-                self.suggestor.get_reasons(context, suggestion_response["suggestions"],  minimum, maximum),
-                locale,
-                ObjectId(context["_id"]),
-                ObjectId(session_id),
-                page,
-                page_size
-            )
-            suggestion_data.close_connection()
+            if self.get_argument("skip_mongodb_log", False):
+                # write log
+                from suggest.data.suggestion import Suggestion
+                suggestion_data = Suggestion()
+                suggestion_data.open_connection()
+                suggestion_data.insert(
+                    self.suggestor.get_reasons(context, suggestion_response["suggestions"],  minimum, maximum),
+                    locale,
+                    ObjectId(context["_id"]),
+                    ObjectId(session_id),
+                    page,
+                    page_size
+                )
+                suggestion_data.close_connection()

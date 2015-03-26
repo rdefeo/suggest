@@ -16,7 +16,6 @@ class Suggestor(object):
 
         return self.content.get_reason_list(url)
 
-
     def get_scores(self, context, ):
         scores = defaultdict(int)
 
@@ -56,7 +55,7 @@ class Suggestor(object):
         suggestion_reasons = []
         for x in suggestions:
             for y in reasons[x["_id"]]:
-                y["normalized_weighted"] = ((y["score"] * y["weighting"])) / (maximum)
+                y["normalized_weighted"] = (y["score"] * y["weighting"]) / maximum
 
             suggestion_reasons.append(
                 {
