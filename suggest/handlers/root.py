@@ -67,8 +67,7 @@ class Root(RequestHandler):
             self.set_status(200)
             self.finish(suggestion_response)
 
-            if self.get_argument("skip_mongodb_log", False):
-                # write log
+            if self.get_argument("skip_mongodb_log", None) is None:
                 from suggest.data.suggestion import Suggestion
                 suggestion_data = Suggestion()
                 suggestion_data.open_connection()
