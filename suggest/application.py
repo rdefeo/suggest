@@ -9,8 +9,9 @@ __author__ = 'robdefeo'
 class Application(tornado.web.Application):
     def __init__(self):
         from suggest.content import Content
+        from suggest.logic.suggestor import Suggestor
         handlers = [
-            url(r"/", Root, dict(content=Content()), name="root"),
+            url(r"/", Root, dict(suggestor=Suggestor(Content())), name="root"),
             url(r"/status", Status, dict(content=Content()), name="status")
         ]
 
