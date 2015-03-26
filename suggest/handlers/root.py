@@ -1,3 +1,4 @@
+from bson import ObjectId
 from tornado.log import app_log
 from tornado.web import RequestHandler, asynchronous
 from tornado.escape import json_encode, url_unescape, json_decode
@@ -16,7 +17,7 @@ class Root(RequestHandler):
     @asynchronous
     def get(self, *args, **kwargs):
         self.set_header('Content-Type', 'application/json')
-
+        session_id = self.get_argument("session_id", None)
         locale = self.get_argument("locale", None)
         raw_page = self.get_argument("page", None)
         raw_page_size = self.get_argument("page_size", None)
@@ -61,12 +62,21 @@ class Root(RequestHandler):
             page = int(raw_page)
             page_size = int(raw_page_size)
             context = json_decode(url_unescape(raw_context))
-            suggestion_response = self.suggestor.score_suggestions(context, page, page_size)
+            suggestion_response, minimum, maximum = self.suggestor.score_suggestions(context, page, page_size)
 
             self.set_status(200)
             self.finish(suggestion_response)
 
-            # TODO Log stuff here
-
-
-
+            # write log
+            from suggest.data.suggestion import Suggestion
+            suggestion_data = Suggestion()
+            suggestion_data.open_connection()
+            suggestion_data.insert(
+                self.suggestor.get_reasons(context, suggestion_response["suggestions"],  minimum, maximum),
+                locale,
+                ObjectId(context["_id"]),
+                ObjectId(session_id),
+                page,
+                page_size
+            )
+            suggestion_data.close_connection()

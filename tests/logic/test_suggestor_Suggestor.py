@@ -8,7 +8,7 @@ class score_suggestions_Tests(TestCase):
     def test_has_entities(self):
         content = Mock()
         target = Target(content)
-        actual = target.score_suggestions(
+        actual, minimum, maximum = target.score_suggestions(
             {
                 "entities": []
             },
@@ -23,3 +23,6 @@ class score_suggestions_Tests(TestCase):
                 'version': '0.0.1'
             }
         )
+
+        self.assertIsNone(minimum)
+        self.assertIsNone(maximum)

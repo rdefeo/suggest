@@ -36,12 +36,45 @@ class Suggestor(object):
 
         return scores
 
+    def get_reasons(self, context, suggestions, minimum, maximum):
+        reasons = defaultdict(list)
+        for entity in context["entities"]:
+            response = self.get_content_list_response(
+                entity["type"],
+                entity["key"]
+            )
+            for x in response:
+                reasons[x["_id"]].append(
+                    {
+                        "weighting": entity["weighting"],
+                        "type": entity["type"],
+                        "key": entity["key"],
+                        "score": x["score"]
+                    }
+                )
+
+        suggestion_reasons = []
+        for x in suggestions:
+            for y in reasons[x["_id"]]:
+                y["normalized_weighted"] = ((y["score"] * y["weighting"])) / (maximum)
+
+            suggestion_reasons.append(
+                {
+                    "reasons": reasons[x["_id"]],
+                    "score": x["score"],
+                    "_id": x["_id"]
+                }
+            )
+
+        return suggestion_reasons
+
     def score_suggestions(self, context, page, page_size):
-        # reasons = defaultdict(list)
         scores = self.get_scores(context)
         response = {
             "version": "0.0.1"
         }
+        minimum = None
+        maximum = None
         if any(scores):
             sorted_scores = sorted(scores.items(), key=lambda y: y[1], reverse=True)
             minimum = sorted_scores[-1][1]
@@ -61,7 +94,7 @@ class Suggestor(object):
         else:
             response["suggestions"] = []
 
-        return response
+        return response, minimum, maximum
 
 
     def process_scores(self, response, _type, key, source, scores, weighting):
