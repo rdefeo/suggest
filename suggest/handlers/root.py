@@ -2,9 +2,6 @@ from bson import ObjectId
 from tornado.log import app_log
 from tornado.web import RequestHandler, asynchronous
 from tornado.escape import json_encode, url_unescape, json_decode
-from operator import itemgetter
-from suggest.settings import CONTEXT_URL
-from collections import defaultdict
 
 
 class Root(RequestHandler):
@@ -18,6 +15,7 @@ class Root(RequestHandler):
     def get(self, *args, **kwargs):
         self.set_header('Content-Type', 'application/json')
         session_id = self.get_argument("session_id", None)
+        user_id = self.get_argument("user_id", None)
         application_id = self.get_argument("application_id", None)
         locale = self.get_argument("locale", None)
         raw_page = self.get_argument("page", None)
@@ -96,6 +94,7 @@ class Root(RequestHandler):
                     self.suggestor.get_reasons(context, suggestion_response["suggestions"],  minimum, maximum),
                     locale,
                     ObjectId(context["_id"]),
+                    ObjectId(user_id) if user_id is not None else None,
                     ObjectId(application_id),
                     ObjectId(session_id),
                     page,
