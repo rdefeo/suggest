@@ -1,3 +1,5 @@
+from bson import ObjectId
+
 __author__ = 'robdefeo'
 from unittest import TestCase
 from mock import Mock
@@ -6,11 +8,35 @@ from suggest.data.suggestion import Suggestion as Target
 
 
 class insert_Test(TestCase):
+    maxDiff = None
+
     def test_regular(self):
         target = Target()
         target.collection = Mock()
         target.insert(
-            "items_value",
+            [
+                {
+                    "key": "1",
+                    "value": "1_value",
+                    "_id": "55194a387d391b7e56bd75ed",
+                    "reasons": "reasons_value",
+                    "score": 1
+                },
+                {
+                    "key": "2",
+                    "value": "2_value",
+                    "_id": "55194a387d391b7e56bd75ef",
+                    "reasons": "reasons_value",
+                    "score": 0.75
+                },
+                {
+                    "key": "3",
+                    "value": "3_value",
+                    "_id": "55194a387d391b7e56bd75e1",
+                    "reasons": "reasons_value",
+                    "score": 0.5
+                }
+            ],
             "locale_value",
             "context_id_value",
             "user_id_value",
@@ -31,13 +57,32 @@ class insert_Test(TestCase):
                 'application_id': 'application_id_value',
                 'context_id': 'context_id_value',
                 'created': '2010-01-01T00:00:00',
-                'items': 'items_value',
                 'locale': 'locale_value',
                 'offset': 0,
                 'page_size': 10,
                 'session_id': 'session_id_value',
                 'user_id': 'user_id_value',
-                'version': '0.0.1'
+                'version': '0.0.1',
+                'items': [
+                    {
+                        '_id': ObjectId('55194a387d391b7e56bd75ed'),
+                        'index': 0,
+                        'reasons': 'reasons_value',
+                        'score': 1.0
+                    },
+                    {
+                        '_id': ObjectId('55194a387d391b7e56bd75ef'),
+                        'index': 1,
+                        'reasons': 'reasons_value',
+                        'score': 0.75
+                    },
+                    {
+                        '_id': ObjectId('55194a387d391b7e56bd75e1'),
+                        'index': 2,
+                        'reasons': 'reasons_value',
+                        'score': 0.5
+                    }
+                ]
             }
         )
 
@@ -45,7 +90,29 @@ class insert_Test(TestCase):
         target = Target()
         target.collection = Mock()
         target.insert(
-            "items_value",
+            [
+                {
+                    "key": "1",
+                    "value": "1_value",
+                    "_id": "55194a387d391b7e56bd75ed",
+                    "reasons": "reasons_value",
+                    "score": 1.0
+                },
+                {
+                    "key": "2",
+                    "value": "2_value",
+                    "_id": "55194a387d391b7e56bd75ef",
+                    "reasons": "reasons_value",
+                    "score": 0.75
+                },
+                {
+                    "key": "3",
+                    "value": "3_value",
+                    "_id": "55194a387d391b7e56bd75e1",
+                    "reasons": "reasons_value",
+                    "score": 0.5
+                }
+            ],
             "locale_value",
             "context_id_value",
             None,
@@ -66,7 +133,25 @@ class insert_Test(TestCase):
                 'application_id': 'application_id_value',
                 'context_id': 'context_id_value',
                 'created': '2010-01-01T00:00:00',
-                'items': 'items_value',
+                'items': [
+                    {
+                        '_id': ObjectId('55194a387d391b7e56bd75ed'),
+                        'index': 0,
+                        'reasons': 'reasons_value',
+                        'score': 1.0},
+                    {
+                        '_id': ObjectId('55194a387d391b7e56bd75ef'),
+                        'index': 1,
+                        'reasons': 'reasons_value',
+                        'score': 0.75
+                    },
+                    {
+                        '_id': ObjectId('55194a387d391b7e56bd75e1'),
+                        'index': 2,
+                        'reasons': 'reasons_value',
+                        'score': 0.5
+                    }
+                ],
                 'locale': 'locale_value',
                 'offset': 0,
                 'page_size': 10,

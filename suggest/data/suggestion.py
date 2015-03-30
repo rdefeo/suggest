@@ -1,4 +1,5 @@
 import logging
+from bson import ObjectId
 from suggest.data.data import Data
 from datetime import datetime
 from suggest import __version__
@@ -13,8 +14,18 @@ class Suggestion(Data):
         if now is None:
             now = datetime.now()
 
+        for index, x in enumerate(items):
+            x["index"] = index
+            x["_id"] = ObjectId(x["_id"])
         data = {
-            "items": items,
+            "items": [
+                {
+                    "index": index,
+                    "_id": x["_id"],
+                    "reasons": x["reasons"],
+                    "score": x["score"]
+                } for index, x in enumerate(items)
+            ],
             "locale": locale,
             "application_id": application_id,
             "context_id": context_id,
