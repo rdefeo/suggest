@@ -9,7 +9,9 @@ def get_env_setting(env_variable_name, default):
 import os
 
 PORT = int(get_env_setting("SUGGEST_PORT", 14999))
-CONTEXT_URL = get_env_setting("SUGGEST_CONTEXT_GENERATED_URL", "http://content.jemboo.com/generated/")
+
+CONTENT_CACHE_SIZE = int(get_env_setting("SUGGEST_CONTENT_CACHE_SIZE", 256))
+CONTENT_URL = get_env_setting("SUGGEST_CONTENT_GENERATED_URL", "http://content.jemboo.com/generated/")
 
 MONGODB_HOST = get_env_setting("SUGGEST_MONGODB_HOST", "localhost")
 MONGODB_PORT = int(get_env_setting("SUGGEST_MONGODB_PORT", 27017))

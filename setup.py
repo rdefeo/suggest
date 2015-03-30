@@ -12,7 +12,7 @@ setup(
         'suggest',
         'suggest.data',
         'suggest.handlers',
-        'suggest.workers'
+        'suggest.logic'
     ],
     install_requires=required
 )

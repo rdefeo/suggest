@@ -1,5 +1,5 @@
 from collections import defaultdict
-from suggest.settings import CONTEXT_URL
+from suggest.settings import CONTENT_URL
 
 __author__ = 'robdefeo'
 
@@ -10,9 +10,9 @@ class Suggestor(object):
 
     def get_content_list_response(self, _type, key):
         if _type in ["popular", "added"]:
-            url = "%s/%s.json" % (CONTEXT_URL, _type)
+            url = "%s/%s.json" % (CONTENT_URL, _type)
         else:
-            url = "%s%s/%s.json" % (CONTEXT_URL, _type, key)
+            url = "%s%s/%s.json" % (CONTENT_URL, _type, key)
 
         return self.content.get_reason_list(url)
 
