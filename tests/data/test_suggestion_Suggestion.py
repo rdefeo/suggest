@@ -16,7 +16,7 @@ class insert_Test(TestCase):
             "user_id_value",
             "application_id_value",
             "session_id_value",
-            1,
+            0,
             10,
             datetime(2010, 1, 1)
         )
@@ -33,7 +33,7 @@ class insert_Test(TestCase):
                 'created': '2010-01-01T00:00:00',
                 'items': 'items_value',
                 'locale': 'locale_value',
-                'page': 1,
+                'offset': 0,
                 'page_size': 10,
                 'session_id': 'session_id_value',
                 'user_id': 'user_id_value',
@@ -51,7 +51,7 @@ class insert_Test(TestCase):
             None,
             "application_id_value",
             "session_id_value",
-            1,
+            0,
             10,
             datetime(2010, 1, 1)
         )
@@ -68,7 +68,7 @@ class insert_Test(TestCase):
                 'created': '2010-01-01T00:00:00',
                 'items': 'items_value',
                 'locale': 'locale_value',
-                'page': 1,
+                'offset': 0,
                 'page_size': 10,
                 'session_id': 'session_id_value',
                 'version': '0.0.1'

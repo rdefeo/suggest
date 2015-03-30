@@ -67,7 +67,7 @@ class Suggestor(object):
 
         return suggestion_reasons
 
-    def score_suggestions(self, context, page, page_size):
+    def score_suggestions(self, context, offset, page_size):
         scores = self.get_scores(context)
         response = {
             "version": "0.0.1"
@@ -78,14 +78,14 @@ class Suggestor(object):
             sorted_scores = sorted(scores.items(), key=lambda y: y[1], reverse=True)
             minimum = sorted_scores[-1][1]
             maximum = sorted_scores[0][1]
-            range = maximum - minimum
-            start = (page-1) * page_size
-            end = page * page_size
+            score_range = maximum - minimum
+            start = offset
+            end = offset + page_size
             items_to_return = []
             for x in sorted_scores[start:end]:
                 items_to_return.append(
                     {
-                        "score": (x[1] - minimum) / range if range != 0 else 0.5,
+                        "score": (x[1] - minimum) / score_range if score_range != 0 else 0.5,
                         "_id": x[0]
                     }
                 )

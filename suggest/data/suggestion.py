@@ -9,7 +9,7 @@ class Suggestion(Data):
     LOGGER = logging.getLogger(__name__)
     collection_name = "suggestion"
 
-    def insert(self, items, locale, context_id, user_id, application_id, session_id, page, page_size, now=None):
+    def insert(self, items, locale, context_id, user_id, application_id, session_id, offset, page_size, now=None):
         if now is None:
             now = datetime.now()
 
@@ -19,7 +19,7 @@ class Suggestion(Data):
             "application_id": application_id,
             "context_id": context_id,
             "session_id": session_id,
-            "page": page,
+            "offset": offset,
             "page_size": page_size,
             "created": now.isoformat(),
             "version": __version__

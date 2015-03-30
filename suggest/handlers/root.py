@@ -18,7 +18,7 @@ class Root(RequestHandler):
         user_id = self.get_argument("user_id", None)
         application_id = self.get_argument("application_id", None)
         locale = self.get_argument("locale", None)
-        raw_page = self.get_argument("page", None)
+        raw_offset = self.get_argument("offset", None)
         raw_page_size = self.get_argument("page_size", None)
         raw_context = self.get_argument("context", None)
 
@@ -42,12 +42,12 @@ class Root(RequestHandler):
                     }
                 )
             )
-        elif raw_page is None:
+        elif raw_offset is None:
             self.set_status(412)
             self.finish(
                 {
                     "status": "error",
-                    "message": "missing param=page"
+                    "message": "missing param=offset"
                 }
             )
 
@@ -78,10 +78,10 @@ class Root(RequestHandler):
                 }
             )
         else:
-            page = int(raw_page)
+            offset = int(raw_offset)
             page_size = int(raw_page_size)
             context = json_decode(url_unescape(raw_context))
-            suggestion_response, minimum, maximum = self.suggestor.score_suggestions(context, page, page_size)
+            suggestion_response, minimum, maximum = self.suggestor.score_suggestions(context, offset, page_size)
 
             self.set_status(200)
             self.finish(suggestion_response)
@@ -97,7 +97,7 @@ class Root(RequestHandler):
                     ObjectId(user_id) if user_id is not None else None,
                     ObjectId(application_id),
                     ObjectId(session_id),
-                    page,
+                    offset,
                     page_size
                 )
                 suggestion_data.close_connection()
