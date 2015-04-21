@@ -1,9 +1,6 @@
 from collections import defaultdict
 from suggest.settings import CONTENT_URL
 
-__author__ = 'robdefeo'
-
-
 class Suggestor(object):
     def __init__(self, content):
         self.content = content
@@ -16,7 +13,9 @@ class Suggestor(object):
 
         return self.content.get_reason_list(url)
 
-    def get_scores(self, context, ):
+    # sorted(attribute_scores.items(), key=lambda y: y[1], reverse=True)
+
+    def get_scores(self, context):
         scores = defaultdict(int)
 
         for entity in context["entities"]:
@@ -100,6 +99,7 @@ class Suggestor(object):
     def process_scores(self, response, _type, key, source, scores, weighting):
         for x in response:
             scores[x["_id"]] += x["score"] * weighting
+
 
     # def suggest(self, context, page, page_size):
     #     _id_reasons = {}

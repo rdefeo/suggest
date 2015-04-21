@@ -83,10 +83,14 @@ class Root(RequestHandler):
             context = json_decode(url_unescape(raw_context))
             suggestion_response, minimum, maximum = self.suggestor.score_suggestions(context, offset, page_size)
 
+
             self.set_status(200)
             self.finish(suggestion_response)
 
             if self.get_argument("skip_mongodb_log", None) is None:
+                # log_offset = 0
+                # log_page_size = 10
+
                 from suggest.data.suggestion import Suggestion
                 suggestion_data = Suggestion()
                 suggestion_data.open_connection()
