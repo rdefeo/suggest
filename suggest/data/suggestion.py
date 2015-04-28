@@ -95,7 +95,7 @@ class Suggestion(Data):
             },
             out=SON(
                 [
-                    ("create", "product_result_listing"),
+                    ("reduce", "product_result_listing"),
                     ("db", "generate")
                 ]
             )
