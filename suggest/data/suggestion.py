@@ -88,8 +88,7 @@ class Suggestion(Data):
             mapper,
             reducer,
             query={
-                "type": "results",
-                "timestamp": {
+                "created": {
                     "$gte": timestamp
                 }
             },
