@@ -12,20 +12,20 @@ class Status(RequestHandler):
 
     @asynchronous
     def get(self):
-        reason_list = self.content.get_reason_list.cache_info()
         self.set_header('Content-Type', 'application/json')
         self.set_status(200)
         self.finish(
             {
                 "status": "OK",
-                "version": __version__,
-                "cache": {
-                    "reason_list": {
-                        "hits": reason_list[0],
-                        "misses": reason_list[1],
-                        "maxsize": reason_list[2],
-                        "currsize": reason_list[3]
-                    }
-                }
+                "version": __version__
+                # ,
+                # "cache": {
+                #     "reason_list": {
+                #         "hits": reason_list[0],
+                #         "misses": reason_list[1],
+                #         "maxsize": reason_list[2],
+                #         "currsize": reason_list[3]
+                #     }
+                # }
             }
         )
