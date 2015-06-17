@@ -15,7 +15,7 @@ class Application(tornado.web.Application):
         handlers = [
             url(r"/", Root, dict(suggestor=Suggestor(reason_cache)), name="root"),
             url(r"/cache", Cache, dict(reason_cache=reason_cache), name="cache"),
-            url(r"/status", Status, dict(content=Content()), name="status")
+            url(r"/status", Status, name="status")
         ]
 
         settings = dict(

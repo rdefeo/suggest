@@ -4,8 +4,8 @@ from tornado.escape import json_encode
 from suggest import __version__
 
 class Status(RequestHandler):
-    def initialize(self, content):
-        self.content = content
+    def initialize(self):
+        pass
 
     def on_finish(self):
         pass
