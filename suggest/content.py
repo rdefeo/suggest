@@ -2,8 +2,7 @@ from pylru import FunctionCacheManager
 import tornado
 import tornado.escape
 from tornado.httpclient import HTTPClient, HTTPError
-
-__author__ = 'robdefeo'
+from datetime import datetime, timedelta
 
 
 class Content(object):
@@ -13,10 +12,16 @@ class Content(object):
     def clear(self):
         self.reason_cache.clear()
 
-    def get_reason_list(self, url):
+    def get_reason_list(self, url, max_age_days=3):
         try:
             http_client = HTTPClient()
             response = http_client.fetch(url)
-            return tornado.escape.json_decode(response.body)["results"]
+            data = tornado.escape.json_decode(response.body)
+
+            min_created_date_allowed = (datetime.now() - timedelta(days=max_age_days)).isoformat()
+            if data["created"] < min_created_date_allowed:
+                return None
+            else:
+                return data["results"]
         except HTTPError as e:
             print("Error=%s,url=%s" % (str(e), url))

@@ -7,7 +7,7 @@ class Suggestor(object):
 
     def get_content_list_response(self, _type, key):
         if _type in ["popular", "added"]:
-            url = "%s/%s.json" % (CONTENT_URL, _type)
+            url = "%s%s.json" % (CONTENT_URL, _type)
         else:
             url = "%s%s/%s.json" % (CONTENT_URL, _type, key)
 
@@ -23,14 +23,15 @@ class Suggestor(object):
                 entity["type"],
                 entity["key"]
             )
-            self.process_scores(
-                response,
-                entity["type"],
-                entity["key"],
-                "detection",
-                scores,
-                entity["weighting"]
-            )
+            if response is not None:
+                self.process_scores(
+                    response,
+                    entity["type"],
+                    entity["key"],
+                    "detection",
+                    scores,
+                    entity["weighting"]
+                )
 
         return scores
 
