@@ -16,22 +16,25 @@ class Suggestor(object):
     # sorted(attribute_scores.items(), key=lambda y: y[1], reverse=True)
 
     def get_scores(self, context):
-        scores = defaultdict(int)
-
+        # scores = defaultdict(int)
+        scores = defaultdict(lambda: {'score': 0, 'reasons':[]})
         for entity in context["entities"]:
             response = self.get_content_list_response(
                 entity["type"],
                 entity["key"]
             )
             if response is not None:
-                self.process_scores(
-                    response,
-                    entity["type"],
-                    entity["key"],
-                    "detection",
-                    scores,
-                    entity["weighting"]
-                )
+                for x in response:
+                    scores[x["_id"]]["score"] += x["score"] * entity["weighting"]
+                    scores[x["_id"]]["reasons"].append(
+                        {
+                            "weighting": entity["weighting"],
+                            "type": entity["type"],
+                            "key": entity["key"],
+                            "score": x["score"],
+                            "weighted_score": x["score"] * entity["weighting"]
+                        }
+                    )
 
         return scores
 
@@ -75,9 +78,9 @@ class Suggestor(object):
         minimum = None
         maximum = None
         if any(scores):
-            sorted_scores = sorted(scores.items(), key=lambda y: y[1], reverse=True)
-            minimum = sorted_scores[-1][1]
-            maximum = sorted_scores[0][1]
+            sorted_scores = sorted(scores.items(), key=lambda y: y[1]['score'], reverse=True)
+            minimum = sorted_scores[-1][1]['score']
+            maximum = sorted_scores[0][1]['score']
             score_range = maximum - minimum
             start = offset
             end = offset + page_size
@@ -85,8 +88,9 @@ class Suggestor(object):
             for x in sorted_scores[start:end]:
                 items_to_return.append(
                     {
-                        "score": (x[1] - minimum) / score_range if score_range != 0 else 0.5,
-                        "_id": x[0]
+                        "score": (x[1]['score'] - minimum) / score_range if score_range != 0 else 0.5,
+                        "_id": x[0],
+                        "reasons": x[1]['reasons']
                     }
                 )
 
@@ -97,9 +101,9 @@ class Suggestor(object):
         return response, minimum, maximum
 
 
-    def process_scores(self, response, _type, key, source, scores, weighting):
-        for x in response:
-            scores[x["_id"]] += x["score"] * weighting
+    # def process_scores(self, response, _type, key, source, scores, weighting):
+    #     for x in response:
+    #         scores[x["_id"]] += x["score"] * weighting
 
 
     # def suggest(self, context, page, page_size):
