@@ -14,18 +14,19 @@ class Suggestion(Data):
     LOGGER = logging.getLogger(__name__)
     collection_name = "suggestion"
 
-    def insert(self, items, locale, context_id, user_id, application_id, session_id, offset, page_size, now=None):
+    def insert(self, items, locale, context_id, user_id, application_id, session_id, offset, page_size, maximum_score, now=None):
         if now is None:
             now = datetime.now()
 
-        for index, x in enumerate(items):
-            x["index"] = index
-            x["_id"] = ObjectId(x["_id"])
+        # for index, x in enumerate(items):
+        #     x["index"] = index
+        #     x["_id"] = ObjectId(x["_id"])
         data = {
             "items": [
                 {
                     "index": index,
-                    "_id": x["_id"],
+                    "_id": ObjectId(x["_id"]),
+                    # "_id": x["_id"],
                     "reasons": x["reasons"],
                     "score": x["score"]
                 } for index, x in enumerate(items)

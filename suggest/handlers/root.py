@@ -81,7 +81,7 @@ class Root(RequestHandler):
             offset = int(raw_offset)
             page_size = int(raw_page_size)
             context = json_decode(url_unescape(raw_context))
-            suggestion_response, minimum, maximum = self.suggestor.score_suggestions(context, offset, page_size)
+            suggestion_response, minimum, maximum_score = self.suggestor.score_suggestions(context, offset, page_size)
 
 
             self.set_status(200)
@@ -95,13 +95,14 @@ class Root(RequestHandler):
                 suggestion_data = Suggestion()
                 suggestion_data.open_connection()
                 suggestion_data.insert(
-                    self.suggestor.get_reasons(context, suggestion_response["suggestions"],  minimum, maximum),
+                    suggestion_response["suggestions"],
                     locale,
                     ObjectId(context["_id"]),
                     ObjectId(user_id) if user_id is not None else None,
                     ObjectId(application_id),
                     ObjectId(session_id),
                     offset,
-                    page_size
+                    page_size,
+                    maximum_score
                 )
                 suggestion_data.close_connection()
