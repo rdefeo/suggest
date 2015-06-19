@@ -102,7 +102,6 @@ class Root(RequestHandler):
                     ObjectId(application_id),
                     ObjectId(session_id),
                     offset,
-                    page_size,
-                    maximum_score
+                    page_size
                 )
                 suggestion_data.close_connection()

@@ -14,7 +14,7 @@ class Suggestion(Data):
     LOGGER = logging.getLogger(__name__)
     collection_name = "suggestion"
 
-    def insert(self, items, locale, context_id, user_id, application_id, session_id, offset, page_size, maximum_score, now=None):
+    def insert(self, items, locale, context_id, user_id, application_id, session_id, offset, page_size, now=None):
         if now is None:
             now = datetime.now()
 
