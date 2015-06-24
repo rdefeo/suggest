@@ -51,7 +51,7 @@ class Suggestor(object):
         )
 
         for x in scoring_modifications:
-            if x["_id"] in scores:
+            if x["_id"] in scores and x["score"] > 0:
                 item_score = log(x["score"])
                 scores[x["_id"]]["score"] += item_score
                 scores[x["_id"]]["reasons"].append(

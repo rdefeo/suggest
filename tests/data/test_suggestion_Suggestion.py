@@ -156,6 +156,6 @@ class insert_Test(TestCase):
                 'offset': 0,
                 'page_size': 10,
                 'session_id': 'session_id_value',
-                'version': '0.0.1'
+                'version': '0.0.2'
             }
         )
