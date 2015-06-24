@@ -1,5 +1,6 @@
 from collections import defaultdict
 from operator import itemgetter
+from math import log
 from suggest.settings import CONTENT_URL
 
 class Suggestor(object):
@@ -23,24 +24,52 @@ class Suggestor(object):
             )
             if response is not None:
                 for x in response:
-                    scores[x["_id"]]["score"] += x["score"] * entity["weighting"]
+                    item_score = x["score"] * (entity["weighting"] / 100)
+                    scores[x["_id"]]["score"] += item_score
                     scores[x["_id"]]["reasons"].append(
                         {
                             "weighting": entity["weighting"],
                             "type": entity["type"],
                             "key": entity["key"],
-                            "score": x["score"],
-                            "weighted_score": x["score"] * entity["weighting"]
+                            "raw_score": x["score"],
+                            "score": item_score
                         }
                     )
 
+        scoring_modifications = []
+        scoring_modifications.extend(
+            self.get_content_list_response(
+                "popular",
+                None
+            )
+        )
+        scoring_modifications.extend(
+            self.get_content_list_response(
+                "added",
+                None
+            )
+        )
+
+        for x in scoring_modifications:
+            if x["_id"] in scores:
+                item_score = log(x["score"])
+                scores[x["_id"]]["score"] += item_score
+                scores[x["_id"]]["reasons"].append(
+                    {
+                        "type": "popular",
+                        "raw_score": x["score"],
+                        "score": item_score
+                    }
+                )
+
         return scores
+
 
     def get_reason_summary(self, scores):
         summary = defaultdict(lambda: {'count': 0, 'total_score': 0, 'average_score': 0, 'reasons': []})
 
         for score in scores.values():
-            key = "".join(["%s%s" % (x["type"], x["key"]) for x in score["reasons"]])
+            key = "".join(["%s%s" % (x["type"], x["key"]) for x in score["reasons"] if x["type"] not in ["added", "popular"]])
             summary[key]["count"] += 1
             summary[key]["total_score"] += score["score"]
             summary[key]["average_score"] = summary[key]["total_score"] / summary[key]["count"]
@@ -49,8 +78,8 @@ class Suggestor(object):
                 {
                     "key": x["key"],
                     "type": x["type"],
-                    "weighting": x["weighting"]
-                } for x in score["reasons"]
+                    "score": x["score"]
+                } for x in score["reasons"] if x["type"] not in ["added", "popular"]
             ]
 
         return summary
