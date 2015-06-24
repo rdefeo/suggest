@@ -83,7 +83,6 @@ class Root(RequestHandler):
             context = json_decode(url_unescape(raw_context))
             suggestion_response, minimum, maximum_score = self.suggestor.score_suggestions(context, offset, page_size)
 
-
             self.set_status(200)
             self.finish(suggestion_response)
 

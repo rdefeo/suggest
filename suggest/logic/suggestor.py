@@ -1,4 +1,5 @@
 from collections import defaultdict
+from operator import itemgetter
 from suggest.settings import CONTENT_URL
 
 class Suggestor(object):
@@ -14,8 +15,7 @@ class Suggestor(object):
         return self.content.get_reason_list(url)
 
     def get_scores(self, context):
-        # scores = defaultdict(int)
-        scores = defaultdict(lambda: {'score': 0, 'reasons':[]})
+        scores = defaultdict(lambda: {'score': 0, 'reasons': []})
         for entity in context["entities"]:
             response = self.get_content_list_response(
                 entity["type"],
@@ -36,37 +36,24 @@ class Suggestor(object):
 
         return scores
 
-    def get_reasons(self, context, suggestions, minimum, maximum):
-        reasons = defaultdict(list)
-        for entity in context["entities"]:
-            response = self.get_content_list_response(
-                entity["type"],
-                entity["key"]
-            )
-            for x in response:
-                reasons[x["_id"]].append(
-                    {
-                        "weighting": entity["weighting"],
-                        "type": entity["type"],
-                        "key": entity["key"],
-                        "score": x["score"]
-                    }
-                )
+    def get_reason_summary(self, scores):
+        summary = defaultdict(lambda: {'count': 0, 'total_score': 0, 'average_score': 0, 'reasons': []})
 
-        suggestion_reasons = []
-        for x in suggestions:
-            for y in reasons[x["_id"]]:
-                y["normalized_weighted"] = (y["score"] * y["weighting"]) / maximum
+        for score in scores.values():
+            key = "".join(["%s%s" % (x["type"], x["key"]) for x in score["reasons"]])
+            summary[key]["count"] += 1
+            summary[key]["total_score"] += score["score"]
+            summary[key]["average_score"] = summary[key]["total_score"] / summary[key]["count"]
 
-            suggestion_reasons.append(
+            summary[key]["reasons"] = [
                 {
-                    "reasons": reasons[x["_id"]],
-                    "score": x["score"],
-                    "_id": x["_id"]
-                }
-            )
+                    "key": x["key"],
+                    "type": x["type"],
+                    "weighting": x["weighting"]
+                } for x in score["reasons"]
+            ]
 
-        return suggestion_reasons
+        return summary
 
     def score_suggestions(self, context, offset, page_size):
         scores = self.get_scores(context)
@@ -91,7 +78,8 @@ class Suggestor(object):
                         "reasons": x[1]['reasons']
                     }
                 )
-
+            reasons = sorted(self.get_reason_summary(scores).values(), key=itemgetter('average_score'), reverse=True)
+            response["reasons"] = reasons
             response["suggestions"] = items_to_return
         else:
             response["suggestions"] = []
