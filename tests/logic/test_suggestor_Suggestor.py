@@ -6,6 +6,240 @@ from mock import Mock
 from suggest.logic.suggestor import Suggestor as Target
 
 
+class get_reason_summary_Tests(TestCase):
+    maxDiff = None
+
+    def test_no_scores(self):
+        content = Mock()
+        target = Target(content)
+
+        actual = target.get_reason_summary(
+            {
+
+            }
+        )
+
+        self.assertListEqual(
+            actual,
+            []
+        )
+
+    def test_scores_multiple_reason(self):
+        content = Mock()
+        target = Target(content)
+
+        actual = target.get_reason_summary(
+            {
+                '1': {
+                    'reasons': [
+                        {
+                            'key': 'black',
+                            'score': 60.0,
+                            'type': 'color',
+                            'raw_score': 100,
+                            'weighting': 60.0
+                        },
+                        {
+                            'raw_score': 50,
+                            'score': 3.912023005428146,
+                            'type': 'popular'
+                        }
+                    ],
+                    'score': 63.912023005428146
+                },
+                '2': {
+                    'reasons': [
+                        {
+                            'key': 'black',
+                            'score': 60.0,
+                            'type': 'color',
+                            'raw_score': 100,
+                            'weighting': 60.0
+                        },
+                        {
+                            'raw_score': 20,
+                            'score': 2.995732273553991,
+                            'type': 'popular'
+                        }
+                    ],
+                    'score': 62.99573227355399
+                },
+                '3': {
+                    'reasons': [
+                        {
+                            'key': 'black',
+                            'score': 60.0,
+                            'type': 'color',
+                            'raw_score': 100,
+                            'weighting': 60.0
+                        },
+                        {
+                            'raw_score': 20,
+                            'score': 2.995732273553991,
+                            'type': 'popular'
+                        }
+                    ],
+                    'score': 60.99573227355399
+                },
+                '4': {
+                    'reasons': [
+                        {
+                            'key': 'red',
+                            'score': 60.0,
+                            'type': 'color',
+                            'raw_score': 100,
+                            'weighting': 60.0
+                        },
+                        {
+                            'raw_score': 20,
+                            'score': 4.995732273553991,
+                            'type': 'popular'
+                        }
+                    ],
+                    'score': 64.99573227355399
+                },
+                '5': {
+                    'reasons': [
+                        {
+                            'key': 'red',
+                            'score': 60.0,
+                            'type': 'color',
+                            'raw_score': 100,
+                            'weighting': 60.0
+                        },
+                        {
+                            'key': 'black',
+                            'score': 60.0,
+                            'type': 'color',
+                            'raw_score': 100,
+                            'weighting': 60.0
+                        },
+                        {
+                            'raw_score': 20,
+                            'score': 4.995732273553991,
+                            'type': 'popular'
+                        }
+                    ],
+                    'score': 124.99573227355399
+                }
+            }
+        )
+
+        self.assertListEqual(
+            actual,
+            [
+                {
+                    'average_score': 124.99573227355398,
+                    'count': 1,
+                    'reasons': [
+                        {
+                            'key': 'red', 'score': 60.0, 'type': 'color'
+                        },
+                        {
+                            'key': 'black', 'score': 60.0, 'type': 'color'
+                        }
+                    ],
+                    'total_score': 124.99573227355398
+                },
+                {
+                    'average_score': 64.99573227355398,
+                    'count': 1,
+                    'reasons': [
+                        {
+                            'key': 'red', 'score': 60.0, 'type': 'color'
+                        }
+                    ],
+                    'total_score': 64.99573227355398
+                },
+                {
+                    'average_score': 62.634495850845376,
+                    'count': 3,
+                    'reasons': [
+                        {
+                            'key': 'black', 'score': 60.0, 'type': 'color'
+                        }
+                    ],
+                    'total_score': 187.90348755253612
+                }
+            ]
+        )
+
+    def test_scores_single_reason(self):
+        content = Mock()
+        target = Target(content)
+
+        actual = target.get_reason_summary(
+            {
+                '1': {
+                    'reasons': [
+                        {
+                            'key': 'black',
+                            'score': 60.0,
+                            'type': 'color',
+                            'raw_score': 100,
+                            'weighting': 60.0
+                        },
+                        {
+                            'raw_score': 50,
+                            'score': 3.912023005428146,
+                            'type': 'popular'
+                        }
+                    ],
+                    'score': 63.912023005428146
+                },
+                '2': {
+                    'reasons': [
+                        {
+                            'key': 'black',
+                            'score': 60.0,
+                            'type': 'color',
+                            'raw_score': 100,
+                            'weighting': 60.0
+                        },
+                        {
+                            'raw_score': 20,
+                            'score': 2.995732273553991,
+                            'type': 'popular'
+                        }
+                    ],
+                    'score': 62.99573227355399
+                },
+                '3': {
+                    'reasons': [
+                        {
+                            'key': 'black',
+                            'score': 60.0,
+                            'type': 'color',
+                            'raw_score': 100,
+                            'weighting': 60.0
+                        },
+                        {
+                            'raw_score': 20,
+                            'score': 4.995732273553991,
+                            'type': 'popular'
+                        }
+                    ],
+                    'score': 64.99573227355399
+                }
+            }
+        )
+
+        self.assertListEqual(
+            actual,
+            [
+                {
+                    'average_score': 63.967829184178704,
+                    'count': 3,
+                    'reasons': [
+                        {
+                            'key': 'black', 'score': 60.0, 'type': 'color'
+                        }
+                    ],
+                    'total_score': 191.90348755253612
+                }
+            ]
+        )
+
 class score_suggestions_Tests(TestCase):
     maxDiff = None
 
@@ -14,6 +248,7 @@ class score_suggestions_Tests(TestCase):
         target = Target(content)
         target.get_scores = Mock()
         target.get_scores.return_value = {}
+        target.get_reason_summary = Mock()
 
         actual, minimum, maximum = target.score_suggestions(
             "context",
@@ -28,6 +263,20 @@ class score_suggestions_Tests(TestCase):
                 'version': '0.0.2'
             }
         )
+
+        self.assertEqual(
+            target.get_scores.call_count,
+            1
+        )
+        self.assertEqual(
+            target.get_scores.call_args_list[0][0][0],
+            "context"
+        )
+        self.assertEqual(
+            target.get_reason_summary.call_count,
+            0
+        )
+
 
     def test_has_scores(self):
         content = Mock()
@@ -152,6 +401,19 @@ class score_suggestions_Tests(TestCase):
         self.assertEqual(
             63.912023005428146,
             maximum
+        )
+
+        self.assertEqual(
+            target.get_scores.call_count,
+            1
+        )
+        self.assertEqual(
+            target.get_scores.call_args_list[0][0][0],
+            "context"
+        )
+        self.assertEqual(
+            target.get_reason_summary.call_count,
+            1
         )
 
 

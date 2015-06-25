@@ -65,7 +65,6 @@ class Suggestor(object):
 
         return scores
 
-
     def get_reason_summary(self, scores):
         summary = defaultdict(lambda: {'count': 0, 'total_score': 0, 'average_score': 0, 'reasons': []})
 
