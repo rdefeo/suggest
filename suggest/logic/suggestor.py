@@ -2,6 +2,7 @@ from collections import defaultdict
 from operator import itemgetter
 from math import log
 from suggest.settings import CONTENT_URL
+from suggest import __version__
 
 class Suggestor(object):
     def __init__(self, content):
@@ -82,12 +83,13 @@ class Suggestor(object):
                 } for x in score["reasons"] if x["type"] not in ["added", "popular"]
             ]
 
-        return summary
+        return sorted(summary.values(), key=itemgetter('average_score'), reverse=True)
+
 
     def score_suggestions(self, context, offset, page_size):
         scores = self.get_scores(context)
         response = {
-            "version": "0.0.1"
+            "version": __version__
         }
         minimum = None
         maximum = None
@@ -107,10 +109,10 @@ class Suggestor(object):
                         "reasons": x[1]['reasons']
                     }
                 )
-            reasons = sorted(self.get_reason_summary(scores).values(), key=itemgetter('average_score'), reverse=True)
-            response["reasons"] = reasons
+            response["reasons"] = self.get_reason_summary(scores)
             response["suggestions"] = items_to_return
         else:
             response["suggestions"] = []
+            response["reasons"] = []
 
         return response, minimum, maximum

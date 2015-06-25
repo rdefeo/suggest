@@ -20,21 +20,21 @@ class insert_Test(TestCase):
                     "value": "1_value",
                     "_id": "55194a387d391b7e56bd75ed",
                     "reasons": "reasons_value",
-                    "score": 1
+                    "score": 100.0
                 },
                 {
                     "key": "2",
                     "value": "2_value",
                     "_id": "55194a387d391b7e56bd75ef",
                     "reasons": "reasons_value",
-                    "score": 0.75
+                    "score": 75.0
                 },
                 {
                     "key": "3",
                     "value": "3_value",
                     "_id": "55194a387d391b7e56bd75e1",
                     "reasons": "reasons_value",
-                    "score": 0.5
+                    "score": 50.0
                 }
             ],
             "locale_value",
@@ -62,25 +62,25 @@ class insert_Test(TestCase):
                 'page_size': 10,
                 'session_id': 'session_id_value',
                 'user_id': 'user_id_value',
-                'version': '0.0.1',
+                'version': '0.0.2',
                 'items': [
                     {
                         '_id': ObjectId('55194a387d391b7e56bd75ed'),
                         'index': 0,
                         'reasons': 'reasons_value',
-                        'score': 1.0
+                        'score': 100.0
                     },
                     {
                         '_id': ObjectId('55194a387d391b7e56bd75ef'),
                         'index': 1,
                         'reasons': 'reasons_value',
-                        'score': 0.75
+                        'score': 75.0
                     },
                     {
                         '_id': ObjectId('55194a387d391b7e56bd75e1'),
                         'index': 2,
                         'reasons': 'reasons_value',
-                        'score': 0.5
+                        'score': 50.0
                     }
                 ]
             }
