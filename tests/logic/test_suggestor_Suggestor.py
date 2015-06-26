@@ -240,7 +240,95 @@ class get_reason_summary_Tests(TestCase):
             ]
         )
 
-class score_suggestions_Tests(TestCase):
+
+class weight_scores_Tests(TestCase):
+    maxDiff = None
+
+    def test_first_page(self):
+        content = Mock()
+        target = Target(content)
+        actual = target.weight_scores(
+            [
+                ("2", {"score": 2, "reasons": "reasons_value"}),
+                ("4", {"score": 4, "reasons": "reasons_value"}),
+                ("6", {"score": 5, "reasons": "reasons_value"}),
+                ("5", {"score": 12, "reasons": "reasons_value"}),
+                ("1", {"score": 12, "reasons": "reasons_value"}),
+                ("3", {"score": 14, "reasons": "reasons_value"})
+            ],
+            0,
+            5
+        )
+        self.assertListEqual(
+            actual,
+            [
+                {
+                    'reasons': 'reasons_value', '_id': '2', 'index': 0, 'score': 100.0
+                },
+                {
+                    'reasons': 'reasons_value', '_id': '4', 'index': 1, 'score': 83.33333333333334
+                },
+                {
+                    'reasons': 'reasons_value', '_id': '6', 'index': 2, 'score': 75.0
+                },
+                {
+                    'reasons': 'reasons_value', '_id': '5', 'index': 3, 'score': 16.666666666666664
+                },
+                {
+                    'reasons': 'reasons_value', '_id': '1', 'index': 4, 'score': 16.666666666666664
+                }
+            ]
+        )
+
+    def test_last_page(self):
+        content = Mock()
+        target = Target(content)
+        actual = target.weight_scores(
+            [
+                ("2", {"score": 2, "reasons": "reasons_value"}),
+                ("4", {"score": 4, "reasons": "reasons_value"}),
+                ("6", {"score": 5, "reasons": "reasons_value"}),
+                ("5", {"score": 12, "reasons": "reasons_value"}),
+                ("1", {"score": 12, "reasons": "reasons_value"}),
+                ("3", {"score": 14, "reasons": "reasons_value"})
+            ],
+            4,
+            5
+        )
+        self.assertListEqual(
+            actual,
+            [
+                {
+                    'index': 4, 'reasons': 'reasons_value', '_id': '1', 'score': 16.666666666666664
+                },
+                {
+                    'score': -0.0, 'index': 5, 'reasons': 'reasons_value', '_id': '3'
+                }
+            ]
+        )
+
+    def test_past_last_page(self):
+        content = Mock()
+        target = Target(content)
+        actual = target.weight_scores(
+            [
+                ("2", {"score": 2, "reasons": "reasons_value"}),
+                ("4", {"score": 4, "reasons": "reasons_value"}),
+                ("6", {"score": 5, "reasons": "reasons_value"}),
+                ("5", {"score": 12, "reasons": "reasons_value"}),
+                ("1", {"score": 12, "reasons": "reasons_value"}),
+                ("3", {"score": 14, "reasons": "reasons_value"})
+            ],
+            10,
+            5
+        )
+        self.assertListEqual(
+            actual,
+            []
+        )
+
+
+class get_suggestion_response_Tests(TestCase):
     maxDiff = None
 
     def test_no_scores(self):
@@ -249,8 +337,13 @@ class score_suggestions_Tests(TestCase):
         target.get_scores = Mock()
         target.get_scores.return_value = {}
         target.get_reason_summary = Mock()
+        target.get_reason_summary.return_value = "reason_summary_value"
+        target.weight_scores = Mock()
+        target.weight_scores.return_value = "weighted_scores_value"
+        target.sort_scores = Mock()
+        target.sort_scores.return_value = "sort_scores_value"
 
-        actual, minimum, maximum = target.score_suggestions(
+        actual = target.get_suggestion_response(
             "context",
             0,
             10
@@ -258,9 +351,10 @@ class score_suggestions_Tests(TestCase):
         self.assertDictEqual(
             actual,
             {
-                'suggestions': [],
-                'reasons': [],
-                'version': '0.0.2'
+                'suggestions': 'weighted_scores_value',
+                'reasons': 'reason_summary_value',
+                'version': '0.0.2',
+                'total_suggestions_count': 0
             }
         )
 
@@ -272,72 +366,46 @@ class score_suggestions_Tests(TestCase):
             target.get_scores.call_args_list[0][0][0],
             "context"
         )
+
         self.assertEqual(
             target.get_reason_summary.call_count,
-            0
+            1
+        )
+        self.assertDictEqual(
+            target.get_reason_summary.call_args_list[0][0][0],
+            {}
         )
 
+        self.assertEqual(
+            target.weight_scores.call_count,
+            1
+        )
+        self.assertEqual(
+            target.weight_scores.call_args_list[0][0][0],
+            'sort_scores_value'
+        )
+        self.assertEqual(
+            target.weight_scores.call_args_list[0][0][1],
+            0
+        )
+        self.assertEqual(
+            target.weight_scores.call_args_list[0][0][1],
+            0
+        )
 
     def test_has_scores(self):
         content = Mock()
         target = Target(content)
         target.get_reason_summary = Mock()
         target.get_reason_summary.return_value = "reason_summary_value"
+        target.weight_scores = Mock()
+        target.weight_scores.return_value = "weighted_scores_value"
         target.get_scores = Mock()
-        target.get_scores.return_value = {
-            '1': {
-                'reasons': [
-                    {
-                        'key': 'black',
-                        'score': 60.0,
-                        'type': 'color',
-                        'raw_score': 100,
-                        'weighting': 60.0
-                    },
-                    {
-                        'raw_score': 50,
-                        'score': 3.912023005428146,
-                        'type': 'popular'
-                    }
-                ],
-                'score': 63.912023005428146
-            },
-            '2': {
-                'reasons': [
-                    {
-                        'key': 'black',
-                        'score': 60.0,
-                        'type': 'color',
-                        'raw_score': 100,
-                        'weighting': 60.0
-                    },
-                    {
-                        'raw_score': 20,
-                        'score': 2.995732273553991,
-                        'type': 'popular'
-                    }
-                ],
-                'score': 62.99573227355399
-            },
-            '3': {
-                'reasons': [
-                    {
-                        'key': 'black',
-                        'score': 60.0,
-                        'type': 'color',
-                        'raw_score': 100,
-                        'weighting': 60.0
-                    },
-                    {
-                        'raw_score': 20,
-                        'score': 2.995732273553991,
-                        'type': 'popular'
-                    }
-                ],
-                'score': 60.99573227355399
-            }
-        }
-        actual, minimum, maximum = target.score_suggestions(
+        target.get_scores.return_value = ["score_1", "score_2"]
+        target.sort_scores = Mock()
+        target.sort_scores.return_value = "sort_scores_value"
+
+        actual = target.get_suggestion_response(
             "context",
             0,
             10
@@ -347,60 +415,10 @@ class score_suggestions_Tests(TestCase):
             actual,
             {
                 'version': '0.0.2',
-                'suggestions': [
-                    {
-                        'reasons': [
-                            {
-                                'weighting': 60.0, 'raw_score': 100, 'score': 60.0, 'key': 'black', 'type': 'color'
-                            },
-                            {
-                                'score': 3.912023005428146, 'raw_score': 50, 'type': 'popular'
-                            }
-                        ],
-                        'score': 100.0,
-                        '_id': '1'
-                    },
-                    {
-                        'reasons': [
-                            {
-                                'weighting': 60.0, 'raw_score': 100, 'score': 60.0, 'key': 'black', 'type': 'color'
-                            },
-                            {
-                                'score': 2.995732273553991, 'raw_score': 20, 'type': 'popular'
-                            }
-                        ],
-                        'score': 68.58026801445475,
-                        '_id': '2'
-                    },
-                    {
-                        'reasons': [
-                            {
-                                'weighting': 60.0,
-                                'raw_score': 100,
-                                'score': 60.0,
-                                'key': 'black',
-                                'type': 'color'
-                            },
-                            {
-                                'score': 2.995732273553991,
-                                'raw_score': 20,
-                                'type': 'popular'
-                            }
-                        ],
-                        'score': 0.0, '_id': '3'
-                    }
-                ],
-                'reasons': 'reason_summary_value'
+                'suggestions': 'weighted_scores_value',
+                'reasons': 'reason_summary_value',
+                'total_suggestions_count': 2
             }
-        )
-
-        self.assertEqual(
-            60.99573227355399,
-            minimum
-        )
-        self.assertEqual(
-            63.912023005428146,
-            maximum
         )
 
         self.assertEqual(
@@ -414,6 +432,32 @@ class score_suggestions_Tests(TestCase):
         self.assertEqual(
             target.get_reason_summary.call_count,
             1
+        )
+
+        self.assertEqual(
+            target.weight_scores.call_count,
+            1
+        )
+        self.assertEqual(
+            target.weight_scores.call_args_list[0][0][0],
+            'sort_scores_value'
+        )
+        self.assertEqual(
+            target.weight_scores.call_args_list[0][0][1],
+            0
+        )
+        self.assertEqual(
+            target.weight_scores.call_args_list[0][0][1],
+            0
+        )
+
+        self.assertEqual(
+            target.sort_scores.call_count,
+            1
+        )
+        self.assertEqual(
+            target.sort_scores.call_args_list[0][0][0],
+            ["score_1", "score_2"]
         )
 
 

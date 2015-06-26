@@ -65,6 +65,9 @@ class Suggestor(object):
 
         return scores
 
+    def sort_scores(self, scores):
+        return sorted(scores.items(), key=lambda y: y[1]['score'], reverse=True)
+
     def get_reason_summary(self, scores):
         summary = defaultdict(lambda: {'count': 0, 'total_score': 0, 'average_score': 0, 'reasons': []})
 
@@ -84,34 +87,34 @@ class Suggestor(object):
 
         return sorted(summary.values(), key=itemgetter('average_score'), reverse=True)
 
-
-    def score_suggestions(self, context, offset, page_size):
+    def get_suggestion_response(self, context, offset, page_size):
         scores = self.get_scores(context)
-        response = {
-            "version": __version__
+        sorted_scores = self.sort_scores(scores)
+
+        return {
+            "version": __version__,
+            "reasons": self.get_reason_summary(scores),
+            "total_suggestions_count": len(scores),
+            "suggestions": self.weight_scores(sorted_scores, offset, page_size)
         }
-        minimum = None
-        maximum = None
-        if any(scores):
-            sorted_scores = sorted(scores.items(), key=lambda y: y[1]['score'], reverse=True)
+
+    def weight_scores(self, sorted_scores, offset, page_size):
+        items_to_return = []
+        if any(sorted_scores):
             minimum = sorted_scores[-1][1]['score']
             maximum = sorted_scores[0][1]['score']
             score_range = maximum - minimum
             start = offset
             end = offset + page_size
-            items_to_return = []
-            for x in sorted_scores[start:end]:
+
+            for index, x in enumerate(sorted_scores[start:end]):
                 items_to_return.append(
                     {
                         "score": ((x[1]['score'] - minimum) / score_range) * 100 if score_range != 0 else 50,
                         "_id": x[0],
-                        "reasons": x[1]['reasons']
+                        "reasons": x[1]['reasons'],
+                        "index": index + offset
                     }
                 )
-            response["reasons"] = self.get_reason_summary(scores)
-            response["suggestions"] = items_to_return
-        else:
-            response["suggestions"] = []
-            response["reasons"] = []
 
-        return response, minimum, maximum
+        return items_to_return
