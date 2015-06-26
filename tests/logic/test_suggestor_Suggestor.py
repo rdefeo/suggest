@@ -263,7 +263,7 @@ class weight_scores_Tests(TestCase):
             actual,
             [
                 {
-                    'score': 100.0, 'index': 0, '_id': '2', 'reasons': 'reasons_value'
+                    'index': 0, '_id': '2', 'reasons': 'reasons_value', 'score': 100.0
                 },
                 {
                     'reasons': 'reasons_value', '_id': '4', 'index': 1, 'score': 83.33333333333334
@@ -302,7 +302,7 @@ class weight_scores_Tests(TestCase):
                     'index': 4, 'reasons': 'reasons_value', '_id': '1', 'score': 16.666666666666664
                 },
                 {
-                    'score': 0.0, 'index': 5, 'reasons': 'reasons_value', '_id': '3'
+                    'index': 5, 'reasons': 'reasons_value', '_id': '3', 'score': 0.0
                 }
             ]
         )

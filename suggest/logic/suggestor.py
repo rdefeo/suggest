@@ -110,7 +110,7 @@ class Suggestor(object):
             for index, x in enumerate(sorted_scores[start:end]):
                 items_to_return.append(
                     {
-                        "score": ((x[1]['score'] - minimum) / score_range) * 100 if score_range != 0 else 50,
+                        "score": float(((x[1]['score'] - minimum) / score_range) * 100 if score_range != 0 else 50),
                         "_id": x[0],
                         "reasons": x[1]['reasons'],
                         "index": index + offset
