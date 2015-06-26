@@ -302,7 +302,7 @@ class weight_scores_Tests(TestCase):
                     'index': 4, 'reasons': 'reasons_value', '_id': '1', 'score': 16.666666666666664
                 },
                 {
-                    'score': -0.0, 'index': 5, 'reasons': 'reasons_value', '_id': '3'
+                    'score': 0.0, 'index': 5, 'reasons': 'reasons_value', '_id': '3'
                 }
             ]
         )
