@@ -249,12 +249,12 @@ class weight_scores_Tests(TestCase):
         target = Target(content)
         actual = target.weight_scores(
             [
-                ("2", {"score": 2, "reasons": "reasons_value"}),
-                ("4", {"score": 4, "reasons": "reasons_value"}),
-                ("6", {"score": 5, "reasons": "reasons_value"}),
-                ("5", {"score": 12, "reasons": "reasons_value"}),
-                ("1", {"score": 12, "reasons": "reasons_value"}),
-                ("3", {"score": 14, "reasons": "reasons_value"})
+                ("2", {"score": 14, "reasons": "reasons_value"}),
+                ("4", {"score": 12, "reasons": "reasons_value"}),
+                ("6", {"score": 12, "reasons": "reasons_value"}),
+                ("5", {"score": 5, "reasons": "reasons_value"}),
+                ("1", {"score": 4, "reasons": "reasons_value"}),
+                ("3", {"score": 2, "reasons": "reasons_value"})
             ],
             0,
             5
@@ -263,16 +263,16 @@ class weight_scores_Tests(TestCase):
             actual,
             [
                 {
-                    'reasons': 'reasons_value', '_id': '2', 'index': 0, 'score': 100.0
+                    'score': 100.0, 'index': 0, '_id': '2', 'reasons': 'reasons_value'
                 },
                 {
                     'reasons': 'reasons_value', '_id': '4', 'index': 1, 'score': 83.33333333333334
                 },
                 {
-                    'reasons': 'reasons_value', '_id': '6', 'index': 2, 'score': 75.0
+                    '_id': '6', 'index': 2, 'reasons': 'reasons_value', 'score': 83.33333333333334
                 },
                 {
-                    'reasons': 'reasons_value', '_id': '5', 'index': 3, 'score': 16.666666666666664
+                    'reasons': 'reasons_value', '_id': '5', 'index': 3, 'score': 25.0
                 },
                 {
                     'reasons': 'reasons_value', '_id': '1', 'index': 4, 'score': 16.666666666666664
@@ -285,12 +285,12 @@ class weight_scores_Tests(TestCase):
         target = Target(content)
         actual = target.weight_scores(
             [
-                ("2", {"score": 2, "reasons": "reasons_value"}),
-                ("4", {"score": 4, "reasons": "reasons_value"}),
-                ("6", {"score": 5, "reasons": "reasons_value"}),
-                ("5", {"score": 12, "reasons": "reasons_value"}),
-                ("1", {"score": 12, "reasons": "reasons_value"}),
-                ("3", {"score": 14, "reasons": "reasons_value"})
+                ("2", {"score": 14, "reasons": "reasons_value"}),
+                ("4", {"score": 12, "reasons": "reasons_value"}),
+                ("6", {"score": 12, "reasons": "reasons_value"}),
+                ("5", {"score": 5, "reasons": "reasons_value"}),
+                ("1", {"score": 4, "reasons": "reasons_value"}),
+                ("3", {"score": 2, "reasons": "reasons_value"})
             ],
             4,
             5
@@ -312,12 +312,12 @@ class weight_scores_Tests(TestCase):
         target = Target(content)
         actual = target.weight_scores(
             [
-                ("2", {"score": 2, "reasons": "reasons_value"}),
-                ("4", {"score": 4, "reasons": "reasons_value"}),
-                ("6", {"score": 5, "reasons": "reasons_value"}),
-                ("5", {"score": 12, "reasons": "reasons_value"}),
-                ("1", {"score": 12, "reasons": "reasons_value"}),
-                ("3", {"score": 14, "reasons": "reasons_value"})
+                ("2", {"score": 14, "reasons": "reasons_value"}),
+                ("4", {"score": 12, "reasons": "reasons_value"}),
+                ("6", {"score": 12, "reasons": "reasons_value"}),
+                ("5", {"score": 5, "reasons": "reasons_value"}),
+                ("1", {"score": 4, "reasons": "reasons_value"}),
+                ("3", {"score": 2, "reasons": "reasons_value"})
             ],
             10,
             5
