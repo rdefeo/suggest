@@ -14,29 +14,17 @@ class Suggestion(Data):
     LOGGER = logging.getLogger(__name__)
     collection_name = "suggestion"
 
-    def insert(self, items, locale, context_id, user_id, application_id, session_id, offset, page_size, now=None):
+    def insert(self, items: list, locale, context: dict, user_id: ObjectId, application_id: ObjectId,
+               session_id: ObjectId, now=None):
         if now is None:
             now = datetime.now()
 
-        # for index, x in enumerate(items):
-        #     x["index"] = index
-        #     x["_id"] = ObjectId(x["_id"])
         data = {
-            "items": [
-                {
-                    "index": index,
-                    "_id": ObjectId(x["_id"]),
-                    # "_id": x["_id"],
-                    "reasons": x["reasons"],
-                    "score": x["score"]
-                } for index, x in enumerate(items)
-            ],
+            "items": items,
             "locale": locale,
             "application_id": application_id,
-            "context_id": context_id,
+            "context": context,
             "session_id": session_id,
-            "offset": offset,
-            "page_size": page_size,
             "created": now.isoformat(),
             "version": __version__
         }
@@ -45,6 +33,7 @@ class Suggestion(Data):
 
         self.collection.insert(data)
 
+    # TODO #39 need to be moved somewhere else entirely
     def map_product_result_listing(self, now=datetime.now(), days_behind=30):
         """
         Used to get the more displayed results
