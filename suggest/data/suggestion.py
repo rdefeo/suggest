@@ -7,12 +7,20 @@ from bson.code import Code
 from bson.son import SON
 from datetime import datetime, timedelta
 
-__author__ = 'robdefeo'
-
 
 class Suggestion(Data):
     LOGGER = logging.getLogger(__name__)
     collection_name = "suggestion"
+
+    def get(self, _id=None):
+        query = {}
+        if _id is not None:
+            query["_id"] = _id
+
+        if not any(query):
+            raise Exception("no query")
+
+        return next(self.collection.find(query), None)
 
     def insert(self, items: list, locale, context: dict, user_id: ObjectId, application_id: ObjectId,
                session_id: ObjectId, _id=None, now=None):
