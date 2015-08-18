@@ -18,7 +18,7 @@ class Suggestor(object):
 
         return self.content.get_reason_list(url)
 
-    def get_scores(self, context: dict) -> dict:
+    def score_items(self, context: dict) -> dict:
         scores = defaultdict(lambda: {'_id': None, 'score': 0, 'reasons': []})
         for entity in context["entities"]:
             response = self.get_content_list_response(
@@ -69,20 +69,14 @@ class Suggestor(object):
 
         return scores
 
-    def sort_scores(self, scores: dict) -> list:
+    @staticmethod
+    def sort_items(scores: dict) -> list:
         return sorted(scores.values(), key=lambda y: y['score'], reverse=True)
 
-    def create_sorted_scores(self, context, offset, page_size):
-        scores = self.get_scores(context)
-        sorted_scores = self.sort_scores(scores)
-        return sorted_scores
-
-        return {
-            "version": __version__,
-            "reasons": self.get_reason_summary(scores),
-            "total_suggestions_count": len(scores),
-            "suggestions": self.weight_scores(sorted_scores, offset, page_size)
-        }
+    def create_suggestion_items(self, context):
+        scores = self.score_items(context)
+        sorted_items = self.sort_items(scores)
+        return self.weight_item_scores(sorted_items)
 
     def get_reason_summary(self, scores):
         summary = defaultdict(lambda: {'count': 0, 'total_score': 0, 'average_score': 0, 'reasons': []})
@@ -104,37 +98,55 @@ class Suggestor(object):
 
         return sorted(summary.values(), key=itemgetter('average_score'), reverse=True)
 
-    def get_suggestion_response(self, context, offset, page_size):
-        # TODO remove me
-        scores = self.get_scores(context)
-        sorted_scores = self.sort_scores(scores)
+    # def get_suggestion_response(self, context, offset, page_size):
+    #     # TODO remove me
+    #     scores = self.get_scores(context)
+    #     sorted_scores = self.sort_scores(scores)
+    #
+    #     return {
+    #         "version": __version__,
+    #         "reasons": self.get_reason_summary(scores),
+    #         "total_suggestions_count": len(scores),
+    #         "suggestions": self.weight_scores(sorted_scores, offset, page_size)
+    #     }
 
-        return {
-            "version": __version__,
-            "reasons": self.get_reason_summary(scores),
-            "total_suggestions_count": len(scores),
-            "suggestions": self.weight_scores(sorted_scores, offset, page_size)
-        }
-
-    def weight_scores(self, sorted_scores: list, offset, page_size):
-        # TODO supply min and max scores
+    @staticmethod
+    def weight_item_scores(sorted_scores: list):
         items_to_return = []
-        if any(sorted_scores):
-            minimum = sorted_scores[-1]['score']
-            maximum = sorted_scores[0]['score']
-            score_range = maximum - minimum
-            start = offset
-            end = offset + page_size
+        minimum = sorted_scores[-1]['score'] if any(sorted_scores) else 0
+        maximum = sorted_scores[0]['score'] if any(sorted_scores) else 0
+        score_range = maximum - minimum
 
-            for index, x in enumerate(sorted_scores[start:end]):
-                items_to_return.append(
-                    {
-                        "score": float(
-                            float((x['score'] - minimum) / score_range) * 100 if score_range != 0 else 50),
-                        "_id": x['_id'],
-                        "reasons": x['reasons'],
-                        "index": index + offset
-                    }
-                )
+        for index, x in enumerate(sorted_scores):
+            items_to_return.append(
+                {
+                    "score": float(float((x['score'] - minimum) / score_range) * 100 if score_range != 0 else 50),
+                    "_id": x['_id'],
+                    "reasons": x['reasons'],
+                    "index": index
+                }
+            )
 
         return items_to_return
+
+    # def weight_scores(self, sorted_scores: list, offset, page_size):
+    #     items_to_return = []
+    #     if any(sorted_scores):
+    #         minimum = sorted_scores[-1]['score']
+    #         maximum = sorted_scores[0]['score']
+    #         score_range = maximum - minimum
+    #         start = offset
+    #         end = offset + page_size
+    #
+    #         for index, x in enumerate(sorted_scores[start:end]):
+    #             items_to_return.append(
+    #                 {
+    #                     "score": float(
+    #                         float((x['score'] - minimum) / score_range) * 100 if score_range != 0 else 50),
+    #                     "_id": x['_id'],
+    #                     "reasons": x['reasons'],
+    #                     "index": index + offset
+    #                 }
+    #             )
+    #
+    #     return items_to_return

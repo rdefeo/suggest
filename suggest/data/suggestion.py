@@ -15,11 +15,14 @@ class Suggestion(Data):
     collection_name = "suggestion"
 
     def insert(self, items: list, locale, context: dict, user_id: ObjectId, application_id: ObjectId,
-               session_id: ObjectId, now=None):
+               session_id: ObjectId, _id=None, now=None):
         if now is None:
             now = datetime.now()
 
+        _id = ObjectId() if _id is None else _id
+
         data = {
+            "_id": _id,
             "items": items,
             "locale": locale,
             "application_id": application_id,
@@ -32,6 +35,8 @@ class Suggestion(Data):
             data["user_id"] = user_id
 
         self.collection.insert(data)
+
+        return _id
 
     # TODO #39 need to be moved somewhere else entirely
     def map_product_result_listing(self, now=datetime.now(), days_behind=30):

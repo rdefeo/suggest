@@ -241,26 +241,23 @@ class get_reason_summary_Tests(TestCase):
         )
 
 
-class weight_scores_Tests(TestCase):
+class weight_item_scores_Tests(TestCase):
     maxDiff = None
 
-    def test_first_page(self):
+    def test_regular(self):
         content = Mock()
         target = Target(content)
-        actual = target.weight_scores(
+        actual = target.weight_item_scores(
             [
-                ("2", {"score": 14, "reasons": "reasons_value"}),
-                ("4", {"score": 12, "reasons": "reasons_value"}),
-                ("6", {"score": 12, "reasons": "reasons_value"}),
-                ("5", {"score": 5, "reasons": "reasons_value"}),
-                ("1", {"score": 4, "reasons": "reasons_value"}),
-                ("3", {"score": 2, "reasons": "reasons_value"})
-            ],
-            0,
-            5
+                {"_id": "2", "score": 14, "reasons": "reasons_value"},
+                {"_id": "4", "score": 12, "reasons": "reasons_value"},
+                {"_id": "6", "score": 12, "reasons": "reasons_value"},
+                {"_id": "5", "score": 5, "reasons": "reasons_value"},
+                {"_id": "1", "score": 4, "reasons": "reasons_value"},
+                {"_id": "3", "score": 2, "reasons": "reasons_value"}
+            ]
         )
         self.assertListEqual(
-            actual,
             [
                 {
                     'index': 0, '_id': '2', 'reasons': 'reasons_value', 'score': 100.0
@@ -276,189 +273,71 @@ class weight_scores_Tests(TestCase):
                 },
                 {
                     'reasons': 'reasons_value', '_id': '1', 'index': 4, 'score': 16.666666666666664
-                }
-            ]
-        )
-
-    def test_last_page(self):
-        content = Mock()
-        target = Target(content)
-        actual = target.weight_scores(
-            [
-                ("2", {"score": 14, "reasons": "reasons_value"}),
-                ("4", {"score": 12, "reasons": "reasons_value"}),
-                ("6", {"score": 12, "reasons": "reasons_value"}),
-                ("5", {"score": 5, "reasons": "reasons_value"}),
-                ("1", {"score": 4, "reasons": "reasons_value"}),
-                ("3", {"score": 2, "reasons": "reasons_value"})
-            ],
-            4,
-            5
-        )
-        self.assertListEqual(
-            actual,
-            [
-                {
-                    'index': 4, 'reasons': 'reasons_value', '_id': '1', 'score': 16.666666666666664
                 },
-                {
-                    'index': 5, 'reasons': 'reasons_value', '_id': '3', 'score': 0.0
-                }
-            ]
+                {'_id': '3', 'reasons': 'reasons_value', 'index': 5, 'score': 0.0}
+            ],
+            actual
         )
 
-    def test_past_last_page(self):
+    def test_empty(self):
         content = Mock()
         target = Target(content)
-        actual = target.weight_scores(
-            [
-                ("2", {"score": 14, "reasons": "reasons_value"}),
-                ("4", {"score": 12, "reasons": "reasons_value"}),
-                ("6", {"score": 12, "reasons": "reasons_value"}),
-                ("5", {"score": 5, "reasons": "reasons_value"}),
-                ("1", {"score": 4, "reasons": "reasons_value"}),
-                ("3", {"score": 2, "reasons": "reasons_value"})
-            ],
-            10,
-            5
-        )
-        self.assertListEqual(
-            actual,
-            []
-        )
+        actual = target.weight_item_scores([])
+        self.assertListEqual([], actual)
 
 
-class get_suggestion_response_Tests(TestCase):
+class create_suggestion_Tests(TestCase):
     maxDiff = None
 
     def test_no_scores(self):
         content = Mock()
         target = Target(content)
-        target.get_scores = Mock()
-        target.get_scores.return_value = {}
+        target.score_items = Mock()
+        target.score_items.return_value = {}
         target.get_reason_summary = Mock()
         target.get_reason_summary.return_value = "reason_summary_value"
-        target.weight_scores = Mock()
-        target.weight_scores.return_value = "weighted_scores_value"
-        target.sort_scores = Mock()
-        target.sort_scores.return_value = "sort_scores_value"
+        target.weight_item_scores = Mock()
+        target.weight_item_scores.return_value = "weighted_scores_value"
+        target.sort_items = Mock()
+        target.sort_items.return_value = "sort_scores_value"
 
-        actual = target.get_suggestion_response(
-            "context",
-            0,
-            10
-        )
-        self.assertDictEqual(
-            actual,
-            {
-                'suggestions': 'weighted_scores_value',
-                'reasons': 'reason_summary_value',
-                'version': '0.0.2',
-                'total_suggestions_count': 0
-            }
-        )
+        actual = target.create_suggestion_items("context")
 
         self.assertEqual(
-            target.get_scores.call_count,
-            1
-        )
-        self.assertEqual(
-            target.get_scores.call_args_list[0][0][0],
-            "context"
+            "weighted_scores_value",
+            actual
         )
 
-        self.assertEqual(
-            target.get_reason_summary.call_count,
-            1
-        )
-        self.assertDictEqual(
-            target.get_reason_summary.call_args_list[0][0][0],
-            {}
-        )
+        self.assertEqual(1, target.score_items.call_count)
+        self.assertEqual("context", target.score_items.call_args_list[0][0][0])
 
-        self.assertEqual(
-            target.weight_scores.call_count,
-            1
-        )
-        self.assertEqual(
-            target.weight_scores.call_args_list[0][0][0],
-            'sort_scores_value'
-        )
-        self.assertEqual(
-            target.weight_scores.call_args_list[0][0][1],
-            0
-        )
-        self.assertEqual(
-            target.weight_scores.call_args_list[0][0][1],
-            0
-        )
+        self.assertEqual(1, target.weight_item_scores.call_count)
+        self.assertEqual('sort_scores_value', target.weight_item_scores.call_args_list[0][0][0])
 
     def test_has_scores(self):
         content = Mock()
         target = Target(content)
         target.get_reason_summary = Mock()
         target.get_reason_summary.return_value = "reason_summary_value"
-        target.weight_scores = Mock()
-        target.weight_scores.return_value = "weighted_scores_value"
-        target.get_scores = Mock()
-        target.get_scores.return_value = ["score_1", "score_2"]
-        target.sort_scores = Mock()
-        target.sort_scores.return_value = "sort_scores_value"
+        target.weight_item_scores = Mock()
+        target.weight_item_scores.return_value = "weighted_scores_value"
+        target.score_items = Mock()
+        target.score_items.return_value = ["score_1", "score_2"]
+        target.sort_items = Mock()
+        target.sort_items.return_value = "sort_scores_value"
 
-        actual = target.get_suggestion_response(
-            "context",
-            0,
-            10
-        )
+        actual = target.create_suggestion_items("context")
 
-        self.assertDictEqual(
-            actual,
-            {
-                'version': '0.0.2',
-                'suggestions': 'weighted_scores_value',
-                'reasons': 'reason_summary_value',
-                'total_suggestions_count': 2
-            }
-        )
+        self.assertEqual("weighted_scores_value", actual)
 
-        self.assertEqual(
-            target.get_scores.call_count,
-            1
-        )
-        self.assertEqual(
-            target.get_scores.call_args_list[0][0][0],
-            "context"
-        )
-        self.assertEqual(
-            target.get_reason_summary.call_count,
-            1
-        )
+        self.assertEqual(1, target.score_items.call_count)
+        self.assertEqual("context", target.score_items.call_args_list[0][0][0])
 
-        self.assertEqual(
-            target.weight_scores.call_count,
-            1
-        )
-        self.assertEqual(
-            target.weight_scores.call_args_list[0][0][0],
-            'sort_scores_value'
-        )
-        self.assertEqual(
-            target.weight_scores.call_args_list[0][0][1],
-            0
-        )
-        self.assertEqual(
-            target.weight_scores.call_args_list[0][0][1],
-            0
-        )
+        self.assertEqual(1, target.weight_item_scores.call_count)
+        self.assertEqual('sort_scores_value', target.weight_item_scores.call_args_list[0][0][0])
 
-        self.assertEqual(
-            target.sort_scores.call_count,
-            1
-        )
-        self.assertEqual(
-            target.sort_scores.call_args_list[0][0][0],
-            ["score_1", "score_2"]
-        )
+        self.assertEqual(1, target.sort_items.call_count)
+        self.assertEqual(["score_1", "score_2"], target.sort_items.call_args_list[0][0][0])
 
 
 class get_scores_Tests(TestCase):
@@ -491,7 +370,7 @@ class get_scores_Tests(TestCase):
             ]
         ]
 
-        actual = target.get_scores(
+        actual = target.score_items(
             {
                 "entities": []
             }
@@ -539,7 +418,7 @@ class get_scores_Tests(TestCase):
             ]
         ]
 
-        actual = target.get_scores(
+        actual = target.score_items(
             {
                 "entities": [
                     {
@@ -557,9 +436,9 @@ class get_scores_Tests(TestCase):
         )
 
         self.assertDictEqual(
-            actual,
             {
                 '1': {
+                    '_id': '1',
                     'reasons': [
                         {
                             'key': 'black',
@@ -577,6 +456,7 @@ class get_scores_Tests(TestCase):
                     'score': 63.912023005428146
                 },
                 '2': {
+                    '_id': '2',
                     'reasons': [
                         {
                             'key': 'black',
@@ -593,5 +473,6 @@ class get_scores_Tests(TestCase):
                     ],
                     'score': 62.99573227355399
                 }
-            }
+            },
+            actual
         )
