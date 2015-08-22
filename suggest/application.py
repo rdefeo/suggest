@@ -1,8 +1,7 @@
 import tornado
 from tornado.web import url
-from suggest.handlers.cache import Cache
 from suggest.handlers.root import Root
-from suggest.handlers.status import Status
+from suggest import handlers
 
 __author__ = 'robdefeo'
 
@@ -12,10 +11,12 @@ class Application(tornado.web.Application):
         from suggest.content import Content
         reason_cache = Content()
         from suggest.logic.suggestor import Suggestor
-        handlers = [
+
+        path_handlers = [
             url(r"/", Root, dict(suggestor=Suggestor(reason_cache)), name="root"),
-            url(r"/cache", Cache, dict(reason_cache=reason_cache), name="cache"),
-            url(r"/status", Status, name="status")
+            url(r"/([0-9a-fA-F]+)/items", handlers.SuggestionItemHandler, name="suggestion_items"),
+            url(r"/cache", handlers.CacheHandler, dict(reason_cache=reason_cache), name="cache"),
+            url(r"/status", handlers.StatusHandler, name="status")
         ]
 
         settings = dict(
@@ -23,4 +24,4 @@ class Application(tornado.web.Application):
             # template_path = os.path.join(os.path.dirname(__file__), "templates"),
             debug=tornado.options.options.debug,
         )
-        tornado.web.Application.__init__(self, handlers, **settings)
+        tornado.web.Application.__init__(self, path_handlers, **settings)

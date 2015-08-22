@@ -4,6 +4,26 @@ from tornado.escape import json_encode, json_decode
 from tornado.web import RequestHandler, Finish
 
 
+class PathExtractor:
+    def __init__(self, handler: RequestHandler):
+        self.handler = handler
+
+    def suggestion_id(self, suggestion_id) -> ObjectId:
+        try:
+            return ObjectId(suggestion_id)
+        except:
+            self.handler.set_status(412)
+            self.handler.finish(
+                json_encode(
+                    {
+                        "status": "error",
+                        "message": "invalid param=suggestion_id,suggestion_id=%s" % suggestion_id
+                    }
+                )
+            )
+            raise Finish()
+
+
 class BodyExtractor:
     def __init__(self, handler: RequestHandler):
         self.handler = handler
@@ -131,3 +151,35 @@ class ParamExtractor:
             raise Finish()
         else:
             return locale
+
+    def offset(self) -> int:
+        raw_offset = self.handler.get_argument("offset", None)
+        try:
+            return int(raw_offset) if raw_offset is not None else None
+        except InvalidId:
+            self.handler.set_status(428)
+            self.handler.finish(
+                json_encode(
+                    {
+                        "status": "error",
+                        "message": "invalid param=offset,offset=%s" % raw_offset
+                    }
+                )
+            )
+            raise Finish()
+
+    def page_size(self) -> int:
+        raw_page_size = self.handler.get_argument("page_size", None)
+        try:
+            return int(raw_page_size) if raw_page_size is not None else None
+        except InvalidId:
+            self.handler.set_status(428)
+            self.handler.finish(
+                json_encode(
+                    {
+                        "status": "error",
+                        "message": "invalid param=page_size,page_size=%s" % raw_page_size
+                    }
+                )
+            )
+            raise Finish()

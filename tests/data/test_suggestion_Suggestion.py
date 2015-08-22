@@ -120,4 +120,3 @@ class insert_Test(TestCase):
             },
             target.collection.insert.call_args_list[0][0][0]
         )
-        
