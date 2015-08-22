@@ -14,7 +14,7 @@ class Application(tornado.web.Application):
 
         path_handlers = [
             url(r"/", Root, dict(suggestor=Suggestor(reason_cache)), name="root"),
-            url(r"/([0-9a-fA-F]+)/items", handlers.SuggestionItemHandler, name="suggestion_items"),
+            url(r"/([0-9a-fA-F]+)/items", handlers.SuggestionItemsHandler, name="suggestion_items"),
             url(r"/cache", handlers.CacheHandler, dict(reason_cache=reason_cache), name="cache"),
             url(r"/status", handlers.StatusHandler, name="status")
         ]

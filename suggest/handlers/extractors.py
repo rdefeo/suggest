@@ -1,5 +1,6 @@
 from bson import ObjectId
 from bson.errors import InvalidId
+from bson.json_util import loads
 from tornado.escape import json_encode, json_decode
 from tornado.web import RequestHandler, Finish
 
@@ -30,7 +31,7 @@ class BodyExtractor:
 
     def body(self) -> dict:
         try:
-            return json_decode(self.handler.request.body)
+            return loads(self.handler.request.body.decode("utf-8"))
         except:
             self.handler.set_status(412)
             self.handler.finish(
@@ -44,8 +45,9 @@ class BodyExtractor:
             raise Finish()
 
     def context(self) -> dict:
+        body = self.body()
         try:
-            return self.body()["context"] if "context" in self.body() else None
+            return body["context"] if "context" in body else None
         except:
             self.handler.set_status(412)
             self.handler.finish(
