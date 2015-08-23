@@ -9,19 +9,18 @@ from datetime import datetime, timedelta
 from pylru import lrucache
 from suggest.settings import DATA_CACHE_SIZE_SUGGESTION
 
-cache = lrucache(DATA_CACHE_SIZE_SUGGESTION)
-
 
 class Suggestion(Data):
     LOGGER = logging.getLogger(__name__)
     collection_name = "suggestion"
+    cache = lrucache(DATA_CACHE_SIZE_SUGGESTION)
 
     def get(self, _id=None):
-        if _id in cache:
-            return cache[_id]
+        if _id in self.cache:
+            return self.cache[_id]
         else:
             data = next(self.collection.find({"_id": _id}), None)
-            cache[_id] = data
+            self.cache[_id] = data
             return data
 
     def insert(self, items: list, locale, context: dict, user_id: ObjectId, application_id: ObjectId,
@@ -46,7 +45,7 @@ class Suggestion(Data):
 
         self.collection.insert(data)
 
-        cache[_id] = data
+        self.cache[_id] = data
 
         return _id
 

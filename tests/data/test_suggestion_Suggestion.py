@@ -8,20 +8,9 @@ from suggest.data.suggestion import Suggestion as Target
 
 
 class get_Test(TestCase):
-    def test_no_query(self):
-        target = Target()
-        target.collection = Mock()
-        target.collection.find.return_value = ["found_value"].__iter__()
-
-        self.assertRaises(
-            Exception,
-            target.get
-        )
-
-        self.assertEquals(0, target.collection.find.call_count)
-
     def test_regular(self):
         target = Target()
+        target.cache.clear()
         target.collection = Mock()
         target.collection.find.return_value = ["found_value"].__iter__()
         actual = target.get(
@@ -37,6 +26,7 @@ class get_Test(TestCase):
 
     def test_empty(self):
         target = Target()
+        target.cache.clear()
         target.collection = Mock()
         target.collection.find.return_value = [].__iter__()
         actual = target.get(

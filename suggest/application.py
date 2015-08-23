@@ -3,8 +3,6 @@ from tornado.web import url
 from suggest.handlers.root import Root
 from suggest import handlers
 
-__author__ = 'robdefeo'
-
 
 class Application(tornado.web.Application):
     def __init__(self):
