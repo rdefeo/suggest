@@ -6,6 +6,10 @@ from suggest import __version__
 from bson.code import Code
 from bson.son import SON
 from datetime import datetime, timedelta
+from pylru import lrucache
+from suggest.settings import DATA_CACHE_SIZE_SUGGESTION
+
+cache = lrucache(DATA_CACHE_SIZE_SUGGESTION)
 
 
 class Suggestion(Data):
@@ -13,14 +17,12 @@ class Suggestion(Data):
     collection_name = "suggestion"
 
     def get(self, _id=None):
-        query = {}
-        if _id is not None:
-            query["_id"] = _id
-
-        if not any(query):
-            raise Exception("no query")
-
-        return next(self.collection.find(query), None)
+        if _id in cache:
+            return cache[_id]
+        else:
+            data = next(self.collection.find({"_id": _id}), None)
+            cache[_id] = data
+            return data
 
     def insert(self, items: list, locale, context: dict, user_id: ObjectId, application_id: ObjectId,
                session_id: ObjectId, _id=None, now=None):
@@ -43,6 +45,8 @@ class Suggestion(Data):
             data["user_id"] = user_id
 
         self.collection.insert(data)
+
+        cache[_id] = data
 
         return _id
 

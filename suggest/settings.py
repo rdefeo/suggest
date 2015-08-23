@@ -18,3 +18,5 @@ MONGODB_PORT = int(get_env_setting("SUGGEST_MONGODB_PORT", 27017))
 MONGODB_DB = get_env_setting("SUGGEST_MONGODB_DB", "suggest")
 MONGODB_USER = get_env_setting("SUGGEST_MONGODB_USER", "suggest")
 MONGODB_PASSWORD = get_env_setting("SUGGEST_MONGODB_PASSWORD", "jemboo")
+
+DATA_CACHE_SIZE_SUGGESTION = 1024
