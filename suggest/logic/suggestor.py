@@ -1,6 +1,7 @@
 from collections import defaultdict
 from operator import itemgetter
 from math import log
+from bson import ObjectId
 
 from suggest.settings import CONTENT_URL
 from suggest import __version__
@@ -28,7 +29,7 @@ class Suggestor(object):
             if response is not None:
                 for x in response:
                     item_score = x["score"] * (entity["weighting"] / 100)
-                    scores[x["_id"]]["_id"] = x["_id"]
+                    scores[x["_id"]]["_id"] = ObjectId(x["_id"])
                     scores[x["_id"]]["score"] += item_score
                     scores[x["_id"]]["reasons"].append(
                         {
@@ -57,7 +58,7 @@ class Suggestor(object):
         for x in scoring_modifications:
             if x["_id"] in scores and x["score"] > 0:
                 item_score = log(x["score"])
-                scores[x["_id"]]["_id"] = x["_id"]
+                scores[x["_id"]]["_id"] = ObjectId(x["_id"])
                 scores[x["_id"]]["score"] += item_score
                 scores[x["_id"]]["reasons"].append(
                     {

@@ -1,12 +1,13 @@
 import logging
+from datetime import datetime, timedelta
+
 from bson import ObjectId
-from suggest.data.data import Data
-from datetime import datetime
-from suggest import __version__
 from bson.code import Code
 from bson.son import SON
-from datetime import datetime, timedelta
 from pylru import lrucache
+
+from suggest.data.data import Data
+from suggest import __version__
 from suggest.settings import DATA_CACHE_SIZE_SUGGESTION
 
 
