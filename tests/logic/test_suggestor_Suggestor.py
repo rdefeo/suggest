@@ -1,3 +1,5 @@
+from bson import ObjectId
+
 __author__ = 'robdefeo'
 from unittest import TestCase
 
@@ -387,32 +389,32 @@ class get_scores_Tests(TestCase):
         target.get_content_list_response.side_effect = [
             [
                 {
-                    "_id": "1",
+                    "_id": ObjectId("55d39f1c7d391b49e1569fa1"),
                     "score": 100
                 },
                 {
-                    "_id": "2",
+                    "_id": ObjectId("55d39f1c7d391b49e1569fa2"),
                     "score": 100
                 }
             ],
             None,
             [
                 {
-                    "_id": "1",
+                    "_id": ObjectId("55d39f1c7d391b49e1569fa1"),
                     "score": 50
                 },
                 {
-                    "_id": "4",
+                    "_id": ObjectId("55d39f1c7d391b49e1569fa4"),
                     "score": 100
                 }
             ],
             [
                 {
-                    "_id": "3",
+                    "_id": ObjectId("55d39f1c7d391b49e1569fa3"),
                     "score": 100
                 },
                 {
-                    "_id": "2",
+                    "_id": ObjectId("55d39f1c7d391b49e1569fa2"),
                     "score": 20
                 }
             ]
@@ -437,8 +439,8 @@ class get_scores_Tests(TestCase):
 
         self.assertDictEqual(
             {
-                '1': {
-                    '_id': '1',
+                ObjectId("55d39f1c7d391b49e1569fa1"): {
+                    "_id": ObjectId("55d39f1c7d391b49e1569fa1"),
                     'reasons': [
                         {
                             'key': 'black',
@@ -455,8 +457,8 @@ class get_scores_Tests(TestCase):
                     ],
                     'score': 63.912023005428146
                 },
-                '2': {
-                    '_id': '2',
+                ObjectId("55d39f1c7d391b49e1569fa2"): {
+                    "_id": ObjectId("55d39f1c7d391b49e1569fa2"),
                     'reasons': [
                         {
                             'key': 'black',
