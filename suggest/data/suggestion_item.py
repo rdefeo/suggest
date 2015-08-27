@@ -1,6 +1,8 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 from logging import getLogger
-from bson import ObjectId
+
+from bson import ObjectId, Code, SON
+
 from suggest.data.data import Data
 from suggest import __version__
 
@@ -29,3 +31,58 @@ class SuggestionItem(Data):
         self.collection.insert(data)
 
         return _id
+
+    def map_product_result_listing(self, now=datetime.now(), days_behind=30):
+        mapper = Code("""
+            function(){
+                for(var i in this.items) {
+                    var item = this.items[i]
+                    emit(
+                        {
+                            product_id: item._id
+                        },
+                        {
+                            listing_count: 1
+                        }
+                    )
+                }
+            }
+        """)
+        reducer = Code("""
+            function(key, values) {
+                var total = 0;
+                values.forEach(function(value) {
+                    total += value.listing_count;
+                });
+
+                return {
+                    listing_count: total
+                };
+
+            }
+        """)
+
+        timestamp = (now - timedelta(days=days_behind)).isoformat()
+
+        self.LOGGER.info(
+            "generate=product_result_listing,timestamp=%s,out=product_result_listing,action=replace,db=generate",
+            timestamp)
+
+        result = self.collection.map_reduce(
+            mapper,
+            reducer,
+            query={
+                "created": {
+                    "$gte": timestamp
+                }
+            },
+            out=SON(
+                [
+                    ("replace", "product_result_listing"),
+                    ("db", "generate")
+                ]
+            )
+
+        )
+
+        return result

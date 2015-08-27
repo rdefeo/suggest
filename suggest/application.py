@@ -1,5 +1,7 @@
 import tornado
+import tornado.options
 from tornado.web import url
+
 from suggest.handlers.root import Root
 from suggest import handlers
 
@@ -18,8 +20,6 @@ class Application(tornado.web.Application):
         ]
 
         settings = dict(
-            # static_path = os.path.join(os.path.dirname(__file__), "static"),
-            # template_path = os.path.join(os.path.dirname(__file__), "templates"),
             debug=tornado.options.options.debug,
         )
         tornado.web.Application.__init__(self, path_handlers, **settings)

@@ -4,7 +4,6 @@ from math import log
 from bson import ObjectId
 
 from suggest.settings import CONTENT_URL
-from suggest import __version__
 
 
 class Suggestor(object):

@@ -1,9 +1,9 @@
-import logging
-from datetime import datetime, timedelta
+from datetime import datetime
+
+from logging import getLogger
 
 from bson import ObjectId
-from bson.code import Code
-from bson.son import SON
+
 from pylru import lrucache
 
 from suggest.data.data import Data
@@ -12,7 +12,7 @@ from suggest.settings import DATA_CACHE_SIZE_SUGGESTION
 
 
 class Suggestion(Data):
-    LOGGER = logging.getLogger(__name__)
+    LOGGER = getLogger(__name__)
     collection_name = "suggestion"
     cache = lrucache(DATA_CACHE_SIZE_SUGGESTION)
 
@@ -49,64 +49,3 @@ class Suggestion(Data):
         self.cache[_id] = data
 
         return _id
-
-    # TODO #39 need to be moved somewhere else entirely
-    def map_product_result_listing(self, now=datetime.now(), days_behind=30):
-        """
-        Used to get the more displayed results
-        :param _id_type_list: which types to consider in detection
-        :return:
-        """
-
-        mapper = Code("""
-            function(){
-                for(var i in this.items) {
-                    var item = this.items[i]
-                    emit(
-                        {
-                            product_id: item._id
-                        },
-                        {
-                            listing_count: 1
-                        }
-                    )
-                }
-            }
-        """)
-        reducer = Code("""
-            function(key, values) {
-                var total = 0;
-                values.forEach(function(value) {
-                    total += value.listing_count;
-                });
-
-                return {
-                    listing_count: total
-                };
-
-            }
-        """)
-
-        timestamp = (now - timedelta(days=days_behind)).isoformat()
-
-        self.LOGGER.info("generate=product_result_listing,timestamp=%s,out=product_result_listing,action=replace,db=generate", timestamp)
-
-        result = self.collection.map_reduce(
-            mapper,
-            reducer,
-            query={
-                "created": {
-                    "$gte": timestamp
-                }
-            },
-            out=SON(
-                [
-                    ("replace", "product_result_listing"),
-                    ("db", "generate")
-                ]
-            )
-
-        )
-
-        return result
-
