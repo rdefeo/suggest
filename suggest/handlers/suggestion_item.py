@@ -38,6 +38,7 @@ class SuggestionItems(RequestHandler):
         self.write(
             dumps(
                 {
+                    "offset": self.param_extractor.offset(),
                     "items": items,
                     "version": __version__
                 }
