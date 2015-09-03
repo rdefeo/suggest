@@ -24,8 +24,15 @@ class Suggestion(Data):
             self.cache[_id] = data
             return data
 
-    def insert(self, items: list, locale, context: dict, user_id: ObjectId, application_id: ObjectId,
-               session_id: ObjectId, _id=None, now=None):
+    def insert(self, items, locale, context, user_id, application_id,
+               session_id, _id=None, now=None):
+        """
+        :type session_id: ObjectId
+        :type application_id: ObjectId
+        :type user_id: ObjectId
+        :type context: dict
+        :type items: list
+        """
         if now is None:
             now = datetime.now()
 

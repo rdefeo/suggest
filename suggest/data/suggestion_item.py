@@ -11,8 +11,15 @@ class SuggestionItem(Data):
     LOGGER = getLogger(__name__)
     collection_name = "suggestion_item"
 
-    def insert(self, items: list, locale: str, application_id: ObjectId,
-               session_id: ObjectId, offset: 0, page_size: int, _id=None, now=None):
+    def insert(self, items, locale, application_id,
+               session_id, offset: 0, page_size, _id=None, now=None):
+        """
+        :type page_size: int
+        :type session_id: ObjectId
+        :type application_id: ObjectId
+        :type locale: str
+        :type items: list
+        """
         now = datetime.now() if now is None else now
         _id = ObjectId() if _id is None else _id
 
