@@ -25,34 +25,33 @@ class Suggestor(object):
                 entity["type"],
                 entity["key"]
             )
-            if response is not None:
-                for x in response:
-                    item_score = x["score"] * (entity["weighting"] / 100)
-                    scores[x["_id"]]["_id"] = ObjectId(x["_id"])
-                    scores[x["_id"]]["score"] += item_score
-                    scores[x["_id"]]["reasons"].append(
-                        {
-                            "weighting": entity["weighting"],
-                            "type": entity["type"],
-                            "key": entity["key"],
-                            "raw_score": x["score"],
-                            "score": item_score
-                        }
-                    )
+            for x in response if response is not None else []:
+                item_score = x["score"] * (entity["weighting"] / 100)
+                scores[x["_id"]]["_id"] = ObjectId(x["_id"])
+                scores[x["_id"]]["score"] += item_score
+                scores[x["_id"]]["reasons"].append(
+                    {
+                        "weighting": entity["weighting"],
+                        "type": entity["type"],
+                        "key": entity["key"],
+                        "raw_score": x["score"],
+                        "score": item_score
+                    }
+                )
 
         scoring_modifications = []
-        scoring_modifications.extend(
-            self.get_content_list_response(
-                "popular",
-                None
-            )
+        popular = self.get_content_list_response(
+            "popular",
+            None
         )
-        scoring_modifications.extend(
-            self.get_content_list_response(
-                "added",
-                None
-            )
+
+        added = self.get_content_list_response(
+            "added",
+            None
         )
+
+        scoring_modifications.extend(popular if popular is not None else [])
+        scoring_modifications.extend(added if added is not None else [])
 
         for x in scoring_modifications:
             if x["_id"] in scores and x["score"] > 0:

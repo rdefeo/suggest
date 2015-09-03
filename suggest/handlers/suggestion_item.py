@@ -35,10 +35,12 @@ class SuggestionItems(RequestHandler):
         self.set_status(200)
         self.set_header('Content-Type', 'application/json')
         self.add_header('next_offset', end)
+
         self.write(
             dumps(
                 {
                     "offset": self.param_extractor.offset(),
+                    # "total_items": len(suggestion["items"]),
                     "items": items,
                     "version": __version__
                 }
