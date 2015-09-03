@@ -12,7 +12,7 @@ class SuggestionItem(Data):
     collection_name = "suggestion_item"
 
     def insert(self, items, locale, application_id,
-               session_id, offset: 0, page_size, _id=None, now=None):
+               session_id, offset, page_size, _id=None, now=None):
         """
         :type page_size: int
         :type session_id: ObjectId
