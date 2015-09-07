@@ -10,6 +10,8 @@ from suggest.data.data import Data
 from suggest import __version__
 from suggest.settings import DATA_CACHE_SIZE_SUGGESTION
 
+MAX_SUGGESTIONS_STORED = 1000
+
 
 class Suggestion(Data):
     LOGGER = getLogger(__name__)
@@ -40,7 +42,8 @@ class Suggestion(Data):
 
         data = {
             "_id": _id,
-            "items": items,
+            "items_length": len(items),
+            "items": items[:MAX_SUGGESTIONS_STORED],
             "locale": locale,
             "application_id": application_id,
             "context": context,
