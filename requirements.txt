@@ -1,4 +1,4 @@
-pymongo==2.7.1
+pymongo>=3.0.3
 tornado>=4.0
 # do this in the chef script instead numpy>=1.9.1
 mock>=1.0.1
