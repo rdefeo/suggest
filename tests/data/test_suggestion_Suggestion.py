@@ -73,7 +73,8 @@ class insert_Test(TestCase):
                 'session_id': 'session_id_value',
                 'user_id': 'user_id_value',
                 'version': '0.0.3',
-                'items': "items_value"
+                'items': "items_value",
+                'items_length': 11
             },
             target.collection.insert.call_args_list[0][0][0]
         )
@@ -104,6 +105,7 @@ class insert_Test(TestCase):
                 'context': 'context_value',
                 'created': '2010-01-01T00:00:00',
                 'items': "items_value",
+                'items_length': 11,
                 'locale': 'locale_value',
                 'session_id': 'session_id_value',
                 'version': '0.0.3'
