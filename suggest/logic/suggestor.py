@@ -11,12 +11,12 @@ class Suggestor(object):
         self.content = content
 
     def get_content_list_response(self, _type, key):
-        if _type in ["popular", "added"]:
-            url = "%s%s.json" % (CONTENT_URL, _type)
+        if _type == "non_attribute":
+            url = "%s%s.json" % (CONTENT_URL, key)
         else:
             url = "%s%s/%s.json" % (CONTENT_URL, _type, key)
 
-        return self.content.get_reason_list(url)
+        return self.content.reason_cache(url)
 
     def score_items(self, context: dict) -> dict:
         scores = defaultdict(lambda: {'_id': None, 'score': 0, 'reasons': []})
@@ -41,13 +41,13 @@ class Suggestor(object):
 
         scoring_modifications = []
         popular = self.get_content_list_response(
-            "popular",
-            None
+            "non_attribute",
+            "popular"
         )
 
         added = self.get_content_list_response(
-            "added",
-            None
+            "non_attribute",
+            "added"
         )
 
         scoring_modifications.extend(popular if popular is not None else [])
